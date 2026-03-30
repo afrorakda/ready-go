@@ -4,281 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Ready Go</title>
-    
     <link rel="icon" href="image_45.png">
     <link rel="apple-touch-icon" href="image_45.png">
-
     <style>
-        :root {
-            --main: #333;
-            --bg: #fff;
-            --accent: #eee;
-            --input-bg: #fafafa;
-            --radius: 15px;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--main);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            padding: 40px 20px;
-            box-sizing: border-box;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-        }
-
+        :root { --main: #333; --bg: #fff; --accent: #eee; --input-bg: #fafafa; --radius: 15px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--main); margin: 0; display: flex; justify-content: center; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        .container { width: 100%; max-width: 420px; padding: 40px 20px; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; }
         h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
-        .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 20px; }
-
-        /* 消去エリア：無秩序にアイテムが並ぶ */
-        #stage {
-            flex: 1;
-            min-height: 300px;
-            position: relative;
-            background: var(--input-bg);
-            border-radius: var(--radius);
-            margin-bottom: 25px;
-            display: flex;
-            flex-wrap: wrap;
-            align-content: center;
-            justify-content: center;
-            gap: 15px;
-            padding: 20px;
-            transition: background 0.5s;
-        }
-
-        .item {
-            font-size: 2.5rem;
-            cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
-            user-select: none;
-        }
-        .item:active { transform: scale(0.8); }
-        .item.hidden { opacity: 0; transform: scale(0); pointer-events: none; }
-
-        /* セットアップエリア */
-        .setup-section {
-            background: var(--input-bg);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        .setup-title { font-size: 0.75rem; font-weight: 800; color: #666; margin-bottom: 15px; }
+        .subtitle { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
         
-        .preset-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .preset-icon {
-            font-size: 1.5rem;
-            background: #fff;
-            border: 2px solid var(--accent);
-            border-radius: 10px;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-            opacity: 0.3;
-        }
-        .preset-icon.active { opacity: 1; border-color: var(--main); }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--accent);
-            border-radius: 10px;
-            background: #fff;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--main) !important;
-            margin-bottom: 10px;
-            outline: none;
-            -webkit-appearance: none;
-            -webkit-text-fill-color: var(--main) !important;
-        }
-        input::placeholder { color: #bbb !important; -webkit-text-fill-color: #bbb !important; }
-
-        .go-btn {
-            width: 100%;
-            padding: 18px;
-            background: #333;
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        /* 最終演出 */
-        #final-msg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3rem;
-            font-weight: 900;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s;
-        }
-        #stage.cleared { background: #fff; }
+        /* 消去エリア */
+        #stage { flex: 1; min-height: 280px; background: var(--input-bg); border-radius: var(--radius); margin-bottom: 25px; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 15px; padding: 20px; position: relative; }
+        .item { font-size: 2.5rem; cursor: pointer; transition: 0.2s; user-select: none; }
+        .item.hidden { opacity: 0; transform: scale(0); pointer-events: none; }
+        #final-msg { position: absolute; font-size: 3rem; font-weight: 900; opacity: 0; transition: 0.5s; pointer-events: none; }
         #stage.cleared #final-msg { opacity: 1; }
 
-        footer { margin-top: 30px; font-size: 11px; color: #aaa; line-height: 1.8; }
-        .footer-btns { margin-top: 20px; }
-        .kofi-btn {
-            display: inline-block; background: var(--main); color: #fff;
-            padding: 12px 25px; border-radius: var(--radius);
-            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
-        }
-        .home-btn {
-            display: block; width: 60%; margin: 0 auto; background: var(--accent);
-            color: var(--main); border: none; padding: 10px;
-            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
-        }
+        /* 設定エリア */
+        .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 20px; text-align: left; }
+        .setup-title { font-size: 0.75rem; font-weight: 800; color: #666; margin-bottom: 12px; }
+        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; }
+        .preset-icon { font-size: 1.4rem; background: #fff; border: 2px solid var(--accent); border-radius: 10px; padding: 8px; text-align: center; cursor: pointer; opacity: 0.3; }
+        .preset-icon.active { opacity: 1; border-color: var(--main); }
+        input { width: 100%; padding: 12px; border: 2px solid var(--accent); border-radius: 10px; background: #fff; font-size: 1rem; font-weight: 700; color: var(--main); margin-bottom: 10px; outline: none; -webkit-appearance: none; }
+        input::placeholder { color: #bbb; font-weight: 400; }
+        .go-btn { width: 100%; padding: 18px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 800; cursor: pointer; }
 
-        #modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
-        }
-        .modal-content {
-            background: #fff; width: 85%; max-width: 320px; padding: 30px;
-            border-radius: var(--radius); text-align: left; position: relative;
-        }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
+        footer { margin-top: 40px; font-size: 11px; color: #aaa; line-height: 1.8; }
+        .kofi-btn { display: inline-block; background: var(--main); color: #fff; padding: 12px 25px; border-radius: var(--radius); text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px; }
+        .home-btn { display: block; width: 60%; margin: 0 auto; background: var(--accent); color: var(--main); border: none; padding: 10px; border-radius: var(--radius); font-weight: 700; font-size: 13px; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>Ready Go</h1>
     <p class="subtitle">Clear your mind. Empty the list.</p>
-
-    <div id="stage">
-        <div id="final-msg">DONE. GO!</div>
-    </div>
-
-    <div class="setup-section" id="setupSection">
-        <p class="setup-title">1. SETUP YOUR ITEMS</p>
-        <div class="preset-grid" id="presetGrid">
-            </div>
-        <input type="text" id="custom1" placeholder="Custom item 1">
-        <input type="text" id="custom2" placeholder="Custom item 2">
+    <div id="stage"><div id="final-msg">DONE. GO!</div></div>
+    <div class="setup-section">
+        <p class="setup-title">1. SETUP ITEMS</p>
+        <div class="preset-grid" id="presetGrid"></div>
+        <input type="text" id="custom1" placeholder="Custom item 1" spellcheck="false">
+        <input type="text" id="custom2" placeholder="Custom item 2" spellcheck="false">
         <button class="go-btn" onclick="startReady()">READY TO GO</button>
     </div>
-
-    <div class="footer-btns">
-        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕ Support me on Ko-fi</a>
-        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
-    </div>
-
-    <footer>
-        <div>No login / No tracking / No ads / Browser only</div>
-        <div>Privacy Policy / afrorakda © 2026</div>
-    </footer>
-</div>
-
-<div id="modal" onclick="hideModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-x" onclick="hideModal()">×</span>
-        <h3>📱 Install</h3>
-        <p>Add to your home screen.</p>
-        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
-        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
-    </div>
+    <div style="margin-top:30px;"><a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕ Support me on Ko-fi</a><button class="home-btn" onclick="alert('Tap Share > Add to Home Screen')">Add to Home Screen</button></div>
+    <footer><div>No login / No tracking / No ads / Browser only</div><div>Privacy Policy / afrorakda © 2026</div></footer>
 </div>
 
 <script>
     const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "🛂", "🎟️", "🔌", "💊", "💵"];
-    let selected = JSON.parse(localStorage.getItem('rg_sel')) || ["🔑", "📱", "🪪"];
-    let customItems = JSON.parse(localStorage.getItem('rg_cus')) || ["", ""];
+    // キー名を更新して古い undefined データを回避
+    let selected = JSON.parse(localStorage.getItem('rg_v4_sel')) || ["🔑", "📱", "🪪"];
+    let customItems = JSON.parse(localStorage.getItem('rg_v4_cus')) || ["", ""];
 
     const stage = document.getElementById('stage');
     const presetGrid = document.getElementById('presetGrid');
-    const custom1 = document.getElementById('custom1');
-    const custom2 = document.getElementById('custom2');
+    const c1 = document.getElementById('custom1');
+    const c2 = document.getElementById('custom2');
 
-    // Initialize Setup
-    function initSetup() {
-        custom1.value = customItems[0];
-        custom2.value = customItems[1];
-        
+    function init() {
+        c1.value = customItems[0] || "";
+        c2.value = customItems[1] || "";
+        presetGrid.innerHTML = '';
         presets.forEach(icon => {
             const div = document.createElement('div');
             div.className = `preset-icon ${selected.includes(icon) ? 'active' : ''}`;
             div.innerText = icon;
             div.onclick = () => {
-                if (selected.includes(icon)) {
-                    selected = selected.filter(i => i !== icon);
-                } else {
-                    selected.push(icon);
-                }
+                if (selected.includes(icon)) selected = selected.filter(i => i !== icon);
+                else selected.push(icon);
                 div.classList.toggle('active');
-                localStorage.setItem('rg_sel', JSON.stringify(selected));
+                localStorage.setItem('rg_v4_sel', JSON.stringify(selected));
             };
             presetGrid.appendChild(div);
         });
     }
 
     function startReady() {
-        customItems = [custom1.value, custom2.value];
-        localStorage.setItem('rg_cus', JSON.stringify(customItems));
-        
-        // Clear stage
+        customItems = [c1.value || "", c2.value || ""];
+        localStorage.setItem('rg_v4_cus', JSON.stringify(customItems));
         stage.classList.remove('cleared');
+        // stage内の .item だけを消す（final-msgは残す）
+        const oldItems = stage.querySelectorAll('.item');
+        oldItems.forEach(i => i.remove());
+
         const items = [...selected, ...customItems.filter(i => i.trim() !== "")];
-        
-        const existingItems = stage.querySelectorAll('.item');
-        existingItems.forEach(i => i.remove());
-
-        if (items.length === 0) return;
-
         items.forEach(text => {
             const el = document.createElement('div');
             el.className = 'item';
-            // If it's a custom text (more than 2 chars), make it smaller font
             if (text.length > 2) el.style.fontSize = '1.2rem';
             el.innerText = text;
-            el.onclick = () => {
-                el.classList.add('hidden');
-                checkDone();
-            };
-            // Random rotation for "disorder" look
-            el.style.transform = `rotate(${(Math.random() - 0.5) * 30}deg)`;
+            el.onclick = () => { el.classList.add('hidden'); check(); };
+            el.style.transform = `rotate(${(Math.random() - 0.5) * 20}deg)`;
             stage.appendChild(el);
         });
-
-        // Scroll to stage
         stage.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function checkDone() {
-        const visible = stage.querySelectorAll('.item:not(.hidden)');
-        if (visible.length === 0) {
+    function check() {
+        if (stage.querySelectorAll('.item:not(.hidden)').length === 0) {
             stage.classList.add('cleared');
         }
     }
-
-    function showModal() { document.getElementById('modal').style.display = 'flex'; }
-    function hideModal() { document.getElementById('modal').style.display = 'none'; }
-
-    initSetup();
+    init();
 </script>
-
 </body>
 </html>
