@@ -15,7 +15,7 @@
             --accent: #eee;
             --input-bg: #fafafa;
             --radius: 15px;
-            --danger: #ff4d4d; /* 消去時のフィードバック用 */
+            --danger: #ff4d4d;
         }
 
         body {
@@ -27,13 +27,12 @@
             justify-content: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
-            /* overflow: hidden; を削除し、スクロールを解放 */
         }
 
         .container {
             width: 100%;
             max-width: 420px;
-            padding: 5px 15px 20px; /* 上部を5pxまで詰めて1画面に凝縮 */
+            padding: 5px 15px 20px;
             box-sizing: border-box;
             text-align: center;
             display: flex;
@@ -43,7 +42,6 @@
         h1 { font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; letter-spacing: -1px; }
         .subtitle { font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 12px; }
 
-        /* 動作窓：高さを動的にしつつ、1画面をキープ */
         #stage {
             flex: 1;
             min-height: 160px;
@@ -69,7 +67,6 @@
             user-select: none;
             z-index: 2;
         }
-        /* 消去時のアニメーション：震えて赤く光る */
         .item.exploding {
             color: var(--danger);
             transform: scale(1.2) rotate(10deg);
@@ -154,7 +151,6 @@
         }
         .go-btn:active { transform: scale(0.98); }
 
-        /* 以下、1ミリも変えない領域 */
         .footer-btns { margin-top: 15px; }
         .kofi-btn {
             display: inline-block; background: var(--main); color: #fff;
@@ -220,9 +216,10 @@
 </div>
 
 <script>
-    const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "🛂", "🎟️", "🔌", "💊", "💵"];
-    let selected = JSON.parse(localStorage.getItem('rg_locked_sel')) || ["🔑", "📱", "🪪"];
-    let customItems = JSON.parse(localStorage.getItem('rg_locked_cus')) || ["", ""];
+    // デイリー特化の10選に更新
+    const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "👓", "💳", "🔋", "💊", "🌂"];
+    let selected = JSON.parse(localStorage.getItem('rg_final_locked_sel')) || ["🔑", "📱", "🪪"];
+    let customItems = JSON.parse(localStorage.getItem('rg_final_locked_cus')) || ["", ""];
 
     const stage = document.getElementById('stage');
     const presetGrid = document.getElementById('presetGrid');
@@ -241,13 +238,12 @@
                 if (selected.includes(icon)) selected = selected.filter(i => i !== icon);
                 else selected.push(icon);
                 div.classList.toggle('active');
-                localStorage.setItem('rg_locked_sel', JSON.stringify(selected));
+                localStorage.setItem('rg_final_locked_sel', JSON.stringify(selected));
             };
             presetGrid.appendChild(div);
         });
     }
 
-    // バイブレーションとスタート演出
     function triggerStart() {
         if (window.navigator.vibrate) window.navigator.vibrate(50);
         startReady();
@@ -255,7 +251,7 @@
 
     function startReady() {
         customItems = [c1.value, c2.value];
-        localStorage.setItem('rg_locked_cus', JSON.stringify(customItems));
+        localStorage.setItem('rg_final_locked_cus', JSON.stringify(customItems));
         stage.classList.remove('cleared');
         const oldItems = stage.querySelectorAll('.item');
         oldItems.forEach(i => i.remove());
