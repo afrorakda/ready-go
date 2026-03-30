@@ -15,6 +15,7 @@
             --accent: #eee;
             --input-bg: #fafafa;
             --radius: 15px;
+            --danger: #ff4d4d; /* 消去時のフィードバック用 */
         }
 
         body {
@@ -26,27 +27,27 @@
             justify-content: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
-            overflow: hidden;
+            /* overflow: hidden; を削除し、スクロールを解放 */
         }
 
         .container {
             width: 100%;
             max-width: 420px;
-            padding: 20px 15px; /* 余白を大幅に削減 */
+            padding: 5px 15px 20px; /* 上部を5pxまで詰めて1画面に凝縮 */
             box-sizing: border-box;
             text-align: center;
             display: flex;
             flex-direction: column;
         }
 
-        h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -1px; }
-        .subtitle { font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 15px; }
+        h1 { font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; letter-spacing: -1px; }
+        .subtitle { font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 12px; }
 
-        /* 動作窓：高さを詰め、スクロール不要に */
+        /* 動作窓：高さを動的にしつつ、1画面をキープ */
         #stage {
             flex: 1;
-            min-height: 180px; /* 縦幅を短縮 */
-            max-height: 250px;
+            min-height: 160px;
+            max-height: 240px;
             position: relative;
             background: var(--input-bg);
             border-radius: var(--radius);
@@ -55,7 +56,7 @@
             flex-wrap: wrap;
             align-content: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             padding: 15px;
             transition: background 0.3s;
             overflow: hidden;
@@ -64,11 +65,23 @@
         .item {
             font-size: 2.2rem;
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
+            transition: transform 0.1s, opacity 0.2s;
             user-select: none;
             z-index: 2;
         }
+        /* 消去時のアニメーション：震えて赤く光る */
+        .item.exploding {
+            color: var(--danger);
+            transform: scale(1.2) rotate(10deg);
+            animation: shake 0.1s infinite;
+        }
         .item.hidden { opacity: 0; transform: scale(0); pointer-events: none; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            50% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(1px, -1px) rotate(-1deg); }
+        }
 
         #final-msg {
             position: absolute;
@@ -85,7 +98,6 @@
         #stage.cleared { background: #fff; }
         #stage.cleared #final-msg { opacity: 1; }
 
-        /* セットアップエリア：コンパクト化 */
         .setup-section {
             background: var(--input-bg);
             border-radius: var(--radius);
@@ -109,7 +121,7 @@
             padding: 6px;
             text-align: center;
             cursor: pointer;
-            opacity: 0.3;
+            opacity: 0.2;
         }
         .preset-icon.active { opacity: 1; border-color: var(--main); }
 
@@ -140,22 +152,23 @@
             font-weight: 800;
             cursor: pointer;
         }
+        .go-btn:active { transform: scale(0.98); }
 
+        /* 以下、1ミリも変えない領域 */
         .footer-btns { margin-top: 15px; }
         .kofi-btn {
             display: inline-block; background: var(--main); color: #fff;
-            padding: 10px 20px; border-radius: var(--radius);
-            text-decoration: none; font-weight: bold; font-size: 13px; margin-bottom: 10px;
+            padding: 12px 25px; border-radius: var(--radius);
+            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
         }
         .home-btn {
             display: block; width: 60%; margin: 0 auto; background: var(--accent);
-            color: var(--main); border: none; padding: 8px;
-            border-radius: var(--radius); font-weight: 700; font-size: 12px; cursor: pointer;
+            color: var(--main); border: none; padding: 10px;
+            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
         }
 
-        footer { margin-top: 20px; font-size: 10px; color: #aaa; line-height: 1.6; }
+        footer { margin-top: 20px; font-size: 11px; color: #aaa; line-height: 1.8; }
 
-        /* モーダル：Quick Image Resizer完全移植 */
         #modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
@@ -182,7 +195,7 @@
         <div class="preset-grid" id="presetGrid"></div>
         <input type="text" id="custom1" placeholder="Custom item 1" spellcheck="false">
         <input type="text" id="custom2" placeholder="Custom item 2" spellcheck="false">
-        <button class="go-btn" onclick="startReady()">READY TO GO</button>
+        <button class="go-btn" onclick="triggerStart()">READY TO GO</button>
     </div>
 
     <div class="footer-btns">
@@ -208,9 +221,8 @@
 
 <script>
     const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "🛂", "🎟️", "🔌", "💊", "💵"];
-    // キーを刷新してリセット
-    let selected = JSON.parse(localStorage.getItem('rg_final_sel')) || ["🔑", "📱", "🪪"];
-    let customItems = JSON.parse(localStorage.getItem('rg_final_cus')) || ["", ""];
+    let selected = JSON.parse(localStorage.getItem('rg_locked_sel')) || ["🔑", "📱", "🪪"];
+    let customItems = JSON.parse(localStorage.getItem('rg_locked_cus')) || ["", ""];
 
     const stage = document.getElementById('stage');
     const presetGrid = document.getElementById('presetGrid');
@@ -229,15 +241,21 @@
                 if (selected.includes(icon)) selected = selected.filter(i => i !== icon);
                 else selected.push(icon);
                 div.classList.toggle('active');
-                localStorage.setItem('rg_final_sel', JSON.stringify(selected));
+                localStorage.setItem('rg_locked_sel', JSON.stringify(selected));
             };
             presetGrid.appendChild(div);
         });
     }
 
+    // バイブレーションとスタート演出
+    function triggerStart() {
+        if (window.navigator.vibrate) window.navigator.vibrate(50);
+        startReady();
+    }
+
     function startReady() {
         customItems = [c1.value, c2.value];
-        localStorage.setItem('rg_final_cus', JSON.stringify(customItems));
+        localStorage.setItem('rg_locked_cus', JSON.stringify(customItems));
         stage.classList.remove('cleared');
         const oldItems = stage.querySelectorAll('.item');
         oldItems.forEach(i => i.remove());
@@ -250,7 +268,13 @@
             el.className = 'item';
             if (text.length > 2) el.style.fontSize = '1.1rem';
             el.innerText = text;
-            el.onclick = () => { el.classList.add('hidden'); check(); };
+            el.onclick = () => {
+                el.classList.add('exploding');
+                setTimeout(() => {
+                    el.classList.add('hidden');
+                    check();
+                }, 200);
+            };
             el.style.transform = `rotate(${(Math.random() - 0.5) * 20}deg)`;
             stage.appendChild(el);
         });
