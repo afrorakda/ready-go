@@ -3,242 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ready Go - Fridge Combo</title>
+    <title>Ready Go</title>
     
+    <link rel="icon" href="image_45.png">
     <link rel="apple-touch-icon" href="image_45.png">
-    <link rel="icon" type="image/png" href="image_45.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+
     <style>
         :root {
-            --bg: #fff;
             --main: #333;
-            --accent: #fafafa;
+            --bg: #fff;
+            --accent: #eee;
+            --input-bg: #fafafa;
             --radius: 15px;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
-            font-family: -apple-system, sans-serif;
-            overflow: hidden;
-            display: flex; flex-direction: column;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
+            color: var(--main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* The Finale Overlay */
-        #done-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--main);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--bg); font-size: 3.5rem; font-weight: 900;
-            z-index: 2000; opacity: 0; visibility: hidden;
-            transition: 0.3s;
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
         }
-        #done-overlay.show { opacity: 1; visibility: visible; }
 
-        header { padding: 20px; border-bottom: 1px solid var(--accent); }
-        h1 { font-size: 1.4rem; font-weight: 800; margin: 0; }
-        
-        /* Step & Mode Navigation */
-        .nav-bar {
-            display: flex; flex-direction: column; gap: 10px;
-            padding: 10px 20px; background: var(--accent);
-        }
-        .segmented-control {
-            display: flex; background: #eee; border-radius: 10px; padding: 2px;
-        }
-        .seg-btn {
-            flex: 1; border: none; background: none; padding: 8px;
-            font-size: 0.8rem; font-weight: bold; border-radius: 8px;
-            cursor: pointer;
-        }
-        .seg-btn.active { background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+        .subtitle { font-size: 0.85rem; color: #666; font-weight: 500; margin-bottom: 20px; }
 
-        .phase-switch {
-            display: flex; justify-content: center; gap: 10px;
-        }
-        .phase-btn {
-            flex: 1; padding: 12px; border-radius: var(--radius);
-            border: 2px solid var(--main); font-weight: 800; font-size: 0.9rem;
-            background: #fff; cursor: pointer;
-        }
-        .phase-btn.active { background: var(--main); color: #fff; }
-
-        /* Item Grid */
-        main { flex: 1; overflow-y: auto; padding: 20px; }
-        #item-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+        /* 消去エリア：無秩序にアイテムが並ぶ */
+        #stage {
+            flex: 1;
+            min-height: 300px;
+            position: relative;
+            background: var(--input-bg);
+            border-radius: var(--radius);
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            transition: background 0.5s;
         }
 
         .item {
-            background: #fff; border: 2px solid var(--accent);
-            border-radius: var(--radius); padding: 15px;
-            display: flex; flex-direction: column; gap: 5px;
-            transition: 0.2s; cursor: pointer;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            user-select: none;
         }
+        .item:active { transform: scale(0.8); }
+        .item.hidden { opacity: 0; transform: scale(0); pointer-events: none; }
 
-        /* Setup Phase States */
-        body.setup-phase .item.selected { border-color: var(--main); }
-        body.setup-phase .item:not(.selected) { opacity: 0.4; }
-
-        /* Ready Phase States */
-        body.ready-phase .item:not(.selected) { display: none; }
-        body.ready-phase .item.checked { opacity: 0.1; background: var(--accent); border-color: transparent; }
-
-        .item-label { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        /* セットアップエリア */
+        .setup-section {
+            background: var(--input-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .setup-title { font-size: 0.75rem; font-weight: 800; color: #666; margin-bottom: 15px; }
         
-        .custom-input {
-            width: 100%; border: none; border-bottom: 1px solid #ddd;
-            font-size: 0.85rem; font-weight: 700; background: transparent;
-            padding: 2px 0; outline: none;
-            /* iOS Fix */
-            -webkit-appearance: none; -webkit-text-fill-color: var(--main); opacity: 1 !important;
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        .custom-input::placeholder { color: #bbb; font-weight: 400; }
+        .preset-icon {
+            font-size: 1.5rem;
+            background: #fff;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0.3;
+        }
+        .preset-icon.active { opacity: 1; border-color: var(--main); }
 
-        footer {
-            padding: 15px 0; text-align: center; background: var(--bg);
-            border-top: 1px solid var(--accent);
-            margin-bottom: env(safe-area-inset-bottom);
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            background: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--main) !important;
+            margin-bottom: 10px;
+            outline: none;
+            -webkit-appearance: none;
+            -webkit-text-fill-color: var(--main) !important;
         }
-        .kofi-button {
-            display: inline-block; text-decoration: none; color: var(--main);
-            background: var(--accent); padding: 8px 16px; border-radius: var(--radius);
-            font-weight: bold; font-size: 12px; margin-bottom: 8px;
+        input::placeholder { color: #bbb !important; -webkit-text-fill-color: #bbb !important; }
+
+        .go-btn {
+            width: 100%;
+            padding: 18px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
         }
-        .credits { font-size: 9px; color: #aaa; }
+
+        /* 最終演出 */
+        #final-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 900;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        #stage.cleared { background: #fff; }
+        #stage.cleared #final-msg { opacity: 1; }
+
+        footer { margin-top: 30px; font-size: 11px; color: #aaa; line-height: 1.8; }
+        .footer-btns { margin-top: 20px; }
+        .kofi-btn {
+            display: inline-block; background: var(--main); color: #fff;
+            padding: 12px 25px; border-radius: var(--radius);
+            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
+        }
+        .home-btn {
+            display: block; width: 60%; margin: 0 auto; background: var(--accent);
+            color: var(--main); border: none; padding: 10px;
+            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
+        }
+
+        #modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-content {
+            background: #fff; width: 85%; max-width: 320px; padding: 30px;
+            border-radius: var(--radius); text-align: left; position: relative;
+        }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
     </style>
 </head>
-<body class="setup-phase">
+<body>
 
-<div id="done-overlay" onclick="resetAll()">DONE. GO!</div>
-
-<header>
+<div class="container">
     <h1>Ready Go</h1>
-</header>
+    <p class="subtitle">Clear your mind. Empty the list.</p>
 
-<div class="nav-bar">
-    <div class="segmented-control">
-        <button id="btn-daily" class="seg-btn active" onclick="changeMode('daily')">DAILY</button>
-        <button id="btn-travel" class="seg-btn" onclick="changeMode('travel')">TRAVEL</button>
+    <div id="stage">
+        <div id="final-msg">DONE. GO!</div>
     </div>
-    <div class="phase-switch">
-        <button id="phase-setup" class="phase-btn active" onclick="setPhase('setup')">1. SETUP</button>
-        <button id="phase-ready" class="phase-btn" onclick="setPhase('ready')">2. READY</button>
+
+    <div class="setup-section" id="setupSection">
+        <p class="setup-title">1. SETUP YOUR ITEMS</p>
+        <div class="preset-grid" id="presetGrid">
+            </div>
+        <input type="text" id="custom1" placeholder="Custom item 1">
+        <input type="text" id="custom2" placeholder="Custom item 2">
+        <button class="go-btn" onclick="startReady()">READY TO GO</button>
+    </div>
+
+    <div class="footer-btns">
+        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕ Support me on Ko-fi</a>
+        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+    </div>
+
+    <footer>
+        <div>No login / No tracking / No ads / Browser only</div>
+        <div>Privacy Policy / afrorakda © 2026</div>
+    </footer>
+</div>
+
+<div id="modal" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3>📱 Install</h3>
+        <p>Add to your home screen.</p>
+        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
+        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
     </div>
 </div>
 
-<main>
-    <div id="item-grid"></div>
-</main>
-
-<footer>
-    <a href="https://ko-fi.com/afrorakda" class="kofi-button">☕️buy me a coffee</a>
-    <div class="credits">No login / No tracking / No ads / Browser only / afrorakda © 2026</div>
-</footer>
-
 <script>
-    const itemsData = {
-        daily: [
-            {id:'d1', n:'Wallet', i:'🪪'}, {id:'d2', n:'Keys', i:'🔑'},
-            {id:'d3', n:'Smartphone', i:'📱'}, {id:'d4', n:'Earbuds', i:'🎧'},
-            {id:'d5', n:'Watch', i:'⌚️'},
-            {id:'dc1', n:'Custom 1', i:'✏️', c:true}, {id:'dc2', n:'Custom 2', i:'✏️', c:true}
-        ],
-        travel: [
-            {id:'t1', n:'Passport', i:'🛂'}, {id:'t2', n:'Tickets', i:'🎟️'},
-            {id:'t3', n:'Charger', i:'🔌'}, {id:'t4', n:'Medicine', i:'💊'},
-            {id:'t5', n:'Cash', i:'💵'},
-            {id:'tc1', n:'Custom 1', i:'✏️', c:true}, {id:'tc2', n:'Custom 2', i:'✏️', c:true}
-        ]
-    };
+    const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "🛂", "🎟️", "🔌", "💊", "💵"];
+    let selected = JSON.parse(localStorage.getItem('rg_sel')) || ["🔑", "📱", "🪪"];
+    let customItems = JSON.parse(localStorage.getItem('rg_cus')) || ["", ""];
 
-    let mode = 'daily';
-    let phase = 'setup';
-    let selected = JSON.parse(localStorage.getItem('rg_sel')) || {};
-    let customs = JSON.parse(localStorage.getItem('rg_cus')) || {};
-    let checked = {};
+    const stage = document.getElementById('stage');
+    const presetGrid = document.getElementById('presetGrid');
+    const custom1 = document.getElementById('custom1');
+    const custom2 = document.getElementById('custom2');
 
-    function changeMode(m) {
-        mode = m;
-        document.getElementById('btn-daily').classList.toggle('active', m==='daily');
-        document.getElementById('btn-travel').classList.toggle('active', m==='travel');
-        render();
-    }
-
-    function setPhase(p) {
-        phase = p;
-        document.body.className = p + '-phase';
-        document.getElementById('phase-setup').classList.toggle('active', p==='setup');
-        document.getElementById('phase-ready').classList.toggle('active', p==='ready');
-        checked = {}; // モード切替時にチェックリセット
-        render();
-    }
-
-    function render() {
-        const grid = document.getElementById('item-grid');
-        grid.innerHTML = '';
-        itemsData[mode].forEach(item => {
-            const isSel = selected[item.id];
-            const isChk = checked[item.id];
+    // Initialize Setup
+    function initSetup() {
+        custom1.value = customItems[0];
+        custom2.value = customItems[1];
+        
+        presets.forEach(icon => {
             const div = document.createElement('div');
-            div.className = `item ${isSel?'selected':''} ${isChk?'checked':''}`;
-            
-            let content = `<div class="item-label"><span>${item.i}</span>`;
-            if(item.c) {
-                content += `<input type="text" class="custom-input" placeholder="Custom..." 
-                            value="${customs[item.id]||''}" 
-                            onchange="saveCustom('${item.id}', this.value)" 
-                            onclick="event.stopPropagation()">`;
-            } else {
-                content += `<span>${item.n}</span>`;
-            }
-            content += `</div>`;
-            div.innerHTML = content;
-
+            div.className = `preset-icon ${selected.includes(icon) ? 'active' : ''}`;
+            div.innerText = icon;
             div.onclick = () => {
-                if(phase === 'setup') {
-                    selected[item.id] = !selected[item.id];
-                    localStorage.setItem('rg_sel', JSON.stringify(selected));
+                if (selected.includes(icon)) {
+                    selected = selected.filter(i => i !== icon);
                 } else {
-                    if(selected[item.id]) {
-                        checked[item.id] = !checked[item.id];
-                        check();
-                    }
+                    selected.push(icon);
                 }
-                render();
+                div.classList.toggle('active');
+                localStorage.setItem('rg_sel', JSON.stringify(selected));
             };
-            grid.appendChild(div);
+            presetGrid.appendChild(div);
         });
     }
 
-    function saveCustom(id, val) {
-        customs[id] = val;
-        localStorage.setItem('rg_cus', JSON.stringify(customs));
+    function startReady() {
+        customItems = [custom1.value, custom2.value];
+        localStorage.setItem('rg_cus', JSON.stringify(customItems));
+        
+        // Clear stage
+        stage.classList.remove('cleared');
+        const items = [...selected, ...customItems.filter(i => i.trim() !== "")];
+        
+        const existingItems = stage.querySelectorAll('.item');
+        existingItems.forEach(i => i.remove());
+
+        if (items.length === 0) return;
+
+        items.forEach(text => {
+            const el = document.createElement('div');
+            el.className = 'item';
+            // If it's a custom text (more than 2 chars), make it smaller font
+            if (text.length > 2) el.style.fontSize = '1.2rem';
+            el.innerText = text;
+            el.onclick = () => {
+                el.classList.add('hidden');
+                checkDone();
+            };
+            // Random rotation for "disorder" look
+            el.style.transform = `rotate(${(Math.random() - 0.5) * 30}deg)`;
+            stage.appendChild(el);
+        });
+
+        // Scroll to stage
+        stage.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function check() {
-        const activeOnes = itemsData[mode].filter(i => selected[i.id]);
-        if(activeOnes.length > 0 && activeOnes.every(i => checked[i.id])) {
-            document.getElementById('done-overlay').classList.add('show');
+    function checkDone() {
+        const visible = stage.querySelectorAll('.item:not(.hidden)');
+        if (visible.length === 0) {
+            stage.classList.add('cleared');
         }
     }
 
-    function resetAll() {
-        document.getElementById('done-overlay').classList.remove('show');
-        checked = {};
-        render();
-    }
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
 
-    render();
+    initSetup();
 </script>
+
 </body>
 </html>
