@@ -7,6 +7,10 @@
     <style>
         :root { --main: #333; --bg: #fff; --accent: #eee; --input-bg: #fafafa; --radius: 15px; --danger: #ff4d4d; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+        
+        /* iOS Safari UI Reset */
+        input, textarea, button { -webkit-appearance: none; -webkit-text-fill-color: var(--main); opacity: 1 !important; font-family: inherit; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg); color: var(--main);
@@ -33,25 +37,33 @@
         .item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
         .del-x { 
-            position: absolute; top: 0; right: 0; width: 28px; height: 28px; 
+            position: absolute; top: 0; right: 0; width: 30px; height: 30px; 
             background: var(--danger); color: #fff; border: none; 
-            border-bottom-left-radius: 10px; font-size: 16px; font-weight: 900; 
+            border-bottom-left-radius: 12px; font-size: 18px; font-weight: 900; 
             display: flex; align-items: center; justify-content: center; z-index: 100;
+            -webkit-text-fill-color: #fff;
         }
 
         .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 18px; border: 2px solid var(--accent); }
         .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .add-btn { background: var(--main); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; font-weight: 900; cursor: pointer; }
+        .add-btn { background: var(--main); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; }
 
-        .go-btn { width: 100%; padding: 20px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1.1rem; font-weight: 900; cursor: pointer; }
+        .go-btn { width: 100%; padding: 20px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1.1rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; margin-top: 10px; }
         .go-btn:disabled { opacity: 0.2; cursor: not-allowed; }
 
-        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
+        .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 18px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff; }
+        .home-btn { background: var(--accent); color: var(--main); border: none; padding: 14px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
+
+        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 20px; }
         
-        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; color: var(--main); transition: opacity 0.5s; }
+        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; color: var(--main); transition: opacity 0.4s; }
         #photo-input { display: none; }
-        
-        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; margin-top: 5px; }
+
+        /* Modal */
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(4px); }
+        .modal-content { background: #fff; width: 85%; max-width: 320px; padding: 30px; border-radius: var(--radius); text-align: left; position: relative; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -67,12 +79,15 @@
     <div id="stage"></div>
 
     <div class="setup-section" id="setup">
-        <p class="setup-title">1. DAILY <button class="add-btn" onclick="addItem('daily')">+ ADD</button></p>
-        <p class="setup-title" style="margin-top: 15px;">2. PERMANENT <button class="add-btn" onclick="addItem('perm')">+ ADD</button></p>
-        <button class="go-btn" id="start-btn" onclick="triggerStart()" disabled style="margin-top: 15px;">SHOOT DAILY RITUALS</button>
+        <p class="setup-title">DAILY RITUALS <button class="add-btn" onclick="addItem('daily')">+ ADD</button></p>
+        <p class="setup-title" style="margin-top: 15px;">PERMANENT ITEMS <button class="add-btn" onclick="addItem('perm')">+ ADD</button></p>
+        <button class="go-btn" id="start-btn" onclick="triggerStart()" disabled>READY TO GO</button>
     </div>
 
-    <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
+    <div class="footer-btns">
+        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
+        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+    </div>
 
     <footer>
         No login / No tracking / No ads / Browser only Privacy Policy / afrorakda © 2026
@@ -81,20 +96,35 @@
 
 <input type="file" id="photo-input" accept="image/*" capture="environment">
 
+<div id="modal" onclick="hideModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-x" onclick="hideModal()">×</span>
+        <h3 style="margin-bottom:15px;">📱 Install</h3>
+        <p style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
+            🍏 <strong>iPhone:</strong> Share > Add to Home Screen<br><br>
+            🤖 <strong>Android:</strong> Menu (⋮) > Add to Home Screen
+        </p>
+    </div>
+</div>
+
 <script>
-    let dailyList = JSON.parse(localStorage.getItem('rg_v11_daily_list')) || [
+    const STORAGE_KEY = 'rg_v12_';
+    let dailyList = JSON.parse(localStorage.getItem(STORAGE_KEY + 'daily_list')) || [
         { id: 'd1', icon: '🔒' }, { id: 'd2', icon: '🔥' }, { id: 'd3', icon: '💧' }, { id: 'd4', icon: '🪟' }
     ];
-    let permList = JSON.parse(localStorage.getItem('rg_v11_perm_list')) || [
+    let permList = JSON.parse(localStorage.getItem(STORAGE_KEY + 'perm_list')) || [
         { id: 'p1', icon: '🔑' }, { id: 'p2', icon: '👜' }
     ];
-    let dailyPhotos = JSON.parse(localStorage.getItem('rg_v11_daily_photos') || '{}');
-    let permPhotos = JSON.parse(localStorage.getItem('rg_v11_perm_photos') || '{}');
     
-    if (localStorage.getItem('rg_v11_date') !== new Date().toDateString()) {
+    let dailyPhotos = JSON.parse(localStorage.getItem(STORAGE_KEY + 'daily_photos') || '{}');
+    let permPhotos = JSON.parse(localStorage.getItem(STORAGE_KEY + 'perm_photos') || '{}');
+    
+    // Daily Reset
+    const today = new Date().toDateString();
+    if (localStorage.getItem(STORAGE_KEY + 'last_date') !== today) {
         dailyPhotos = {};
-        localStorage.setItem('rg_v11_date', new Date().toDateString());
-        localStorage.setItem('rg_v11_daily_photos', '{}');
+        localStorage.setItem(STORAGE_KEY + 'last_date', today);
+        localStorage.setItem(STORAGE_KEY + 'daily_photos', '{}');
     }
 
     const stage = document.getElementById('stage');
@@ -105,11 +135,12 @@
     function renderStage() {
         stage.innerHTML = '';
         let dCount = 0;
-        const all = [...dailyList, ...permList];
+        const allItems = [...dailyList, ...permList];
 
-        all.forEach(item => {
+        allItems.forEach(item => {
             const isDaily = dailyList.some(d => d.id === item.id);
             const photo = isDaily ? dailyPhotos[item.id] : permPhotos[item.id];
+            
             const div = document.createElement('div');
             div.className = 'item' + (photo ? '' : ' empty');
             
@@ -129,10 +160,10 @@
 
     function removeItem(e, id, type) {
         e.stopPropagation();
-        if (!confirm("Delete photo?")) return;
+        if (!confirm("Clear this photo?")) return;
         if (type === 'daily') delete dailyPhotos[id];
         else delete permPhotos[id];
-        savePhotos();
+        saveAll();
         renderStage();
     }
 
@@ -141,8 +172,7 @@
         const icon = type === 'daily' ? '📸' : '🖼️';
         if (type === 'daily') dailyList.push({ id, icon });
         else permList.push({ id, icon });
-        localStorage.setItem('rg_v11_daily_list', JSON.stringify(dailyList));
-        localStorage.setItem('rg_v11_perm_list', JSON.stringify(permList));
+        saveAll();
         renderStage();
     }
 
@@ -155,49 +185,56 @@
             const img = new Image();
             img.onload = () => {
                 const cvs = document.createElement('canvas');
-                const size = 400; // 強制リサイズ
+                const size = 450; // 定義されたサイズで確実にリサイズ
                 cvs.width = size; cvs.height = size;
                 const ctx = cvs.getContext('2d');
                 ctx.drawImage(img, 0, 0, size, size);
                 
                 if (currentTarget.type === 'daily') {
-                    ctx.fillStyle = 'rgba(255, 77, 77, 0.9)'; ctx.font = '900 24px sans-serif';
-                    ctx.fillText(new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), 15, 35);
+                    ctx.fillStyle = 'rgba(255, 77, 77, 0.9)'; ctx.font = '900 28px sans-serif';
+                    ctx.fillText(new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), 20, 45);
                 }
                 
-                const data = cvs.toDataURL('image/jpeg', 0.5); // 圧縮指定
+                const data = cvs.toDataURL('image/jpeg', 0.6);
                 if (currentTarget.type === 'daily') dailyPhotos[currentTarget.id] = data;
                 else permPhotos[currentTarget.id] = data;
                 
-                savePhotos();
+                saveAll();
                 renderStage();
             };
             img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
-        e.target.value = '';
+        e.target.value = ''; // Reset input
     };
 
-    function savePhotos() {
-        localStorage.setItem('rg_v11_daily_photos', JSON.stringify(dailyPhotos));
-        localStorage.setItem('rg_v11_perm_photos', JSON.stringify(permPhotos));
+    function saveAll() {
+        localStorage.setItem(STORAGE_KEY + 'daily_list', JSON.stringify(dailyList));
+        localStorage.setItem(STORAGE_KEY + 'perm_list', JSON.stringify(permList));
+        localStorage.setItem(STORAGE_KEY + 'daily_photos', JSON.stringify(dailyPhotos));
+        localStorage.setItem(STORAGE_KEY + 'perm_photos', JSON.stringify(permPhotos));
     }
 
     function triggerStart() {
         stage.classList.add('active');
         document.getElementById('setup').style.display = 'none';
+        document.querySelectorAll('.footer-btns, footer').forEach(el => el.style.display = 'none');
+        
         stage.querySelectorAll('.item').forEach(el => {
             el.onclick = () => {
                 el.style.opacity = '0';
                 el.style.pointerEvents = 'none';
                 if (!Array.from(stage.querySelectorAll('.item')).some(i => i.style.opacity !== '0')) {
-                    dailyPhotos = {}; savePhotos();
+                    dailyPhotos = {}; saveAll();
                     document.getElementById('main-ui').style.display = 'none';
                     document.getElementById('final-msg').style.opacity = '1';
                 }
             };
         });
     }
+
+    function showModal() { document.getElementById('modal').style.display = 'flex'; }
+    function hideModal() { document.getElementById('modal').style.display = 'none'; }
 
     renderStage();
 </script>
