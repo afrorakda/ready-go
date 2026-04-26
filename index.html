@@ -18,7 +18,6 @@
             --danger: #ff4d4d;
         }
 
-        /* 憲法遵守: 15px角丸 / iOS Safari対策 / 選択禁止 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
         
         body {
@@ -30,7 +29,7 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .container {
@@ -45,12 +44,11 @@
         header { display: flex; justify-content: space-between; align-items: center; }
         h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
         .hub-link { text-decoration: none; font-size: 0.8rem; font-weight: 800; color: var(--main); background: var(--accent); padding: 8px 14px; border-radius: var(--radius); }
-        
-        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; text-align: left; }
+        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; }
 
-        /* Stage Area (破壊の場) */
+        /* Stage Area */
         #stage {
-            min-height: 280px;
+            min-height: 320px;
             position: relative;
             background: var(--input-bg);
             border-radius: var(--radius);
@@ -58,14 +56,21 @@
             flex-wrap: wrap;
             align-content: center;
             justify-content: center;
-            gap: 12px;
-            padding: 20px;
+            gap: 10px;
+            padding: 15px;
             border: 2px solid var(--accent);
-            overflow: hidden;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
         }
 
         .item {
-            width: 85px; height: 85px;
+            width: 90px; height: 90px;
             background: #fff;
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
@@ -73,29 +78,31 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.06);
             position: relative;
-            transition: transform 0.1s, opacity 0.3s;
             overflow: hidden;
+            border: 2px solid transparent;
         }
         .item img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* 強烈な破壊アニメーション */
-        .item.exploding {
-            animation: shake 0.12s infinite;
-            border: 3px solid var(--danger);
-            z-index: 100;
+        /* 必須撮影枠（空） */
+        .item.empty {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            opacity: 0.6;
         }
-        @keyframes shake {
-            0% { transform: translate(2px, 2px) rotate(0deg) scale(1.1); }
-            25% { transform: translate(-2px, -2px) rotate(2deg); }
-            50% { transform: translate(2px, -2px) rotate(-2deg); }
-            75% { transform: translate(-2px, 2px) rotate(1deg); }
-            100% { transform: translate(2px, 2px) rotate(0deg); }
+        .item.empty::after {
+            content: 'TAP';
+            position: absolute; bottom: 5px;
+            font-size: 0.6rem; font-weight: 900; color: #999;
         }
 
-        .particle {
-            position: absolute; width: 10px; height: 10px;
-            background: var(--danger); border-radius: 50%;
-            pointer-events: none; z-index: 200;
+        .item.exploding {
+            animation: shake 0.1s infinite;
+            border-color: var(--danger);
+        }
+        @keyframes shake {
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(2px, -2px); }
         }
 
         #final-msg {
@@ -104,45 +111,42 @@
             font-size: 3.5rem; font-weight: 900;
             opacity: 0; pointer-events: none;
             transition: opacity 0.5s; z-index: 2000;
-            color: var(--main); text-align: center;
+            color: var(--main);
         }
 
-        /* Setup Area */
+        /* Setup Section */
         .setup-section {
             background: var(--input-bg);
             border-radius: var(--radius);
             padding: 18px;
             border: 2px solid var(--accent);
         }
-        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; display: flex; justify-content: space-between; }
+        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; }
         
-        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
+        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; }
         .preset-icon {
             font-size: 1.4rem; background: #fff; border: 2px solid var(--accent);
             border-radius: 10px; padding: 8px 0; text-align: center;
             cursor: pointer; opacity: 0.3; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center;
         }
         .preset-icon.active { opacity: 1; border-color: var(--main); }
-        .preset-icon.camera-trigger { border: 2px dashed #bbb; opacity: 1; color: #888; }
-        
-        #photo-input { display: none; }
 
         .go-btn {
             width: 100%; padding: 20px; background: var(--main);
             color: #fff; border: none; border-radius: var(--radius);
             font-size: 1.2rem; font-weight: 900; cursor: pointer;
-            -webkit-text-fill-color: #fff;
+            transition: opacity 0.3s;
         }
-        .go-btn:active { transform: scale(0.97); }
+        .go-btn:disabled { opacity: 0.2; cursor: default; }
 
         .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
-        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff; }
+        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; }
         .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
 
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
         footer a { color: inherit; text-decoration: underline; }
 
+        #photo-input { display: none; }
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); text-align: left; position: relative; }
         .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
@@ -150,6 +154,7 @@
 </head>
 <body>
 
+<canvas id="particle-canvas"></canvas>
 <div id="final-msg">DONE. GO!</div>
 
 <div class="container" id="main-ui">
@@ -157,17 +162,14 @@
         <h1>Ready Go</h1>
         <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
     </header>
-    <p class="subtitle">Destroy the evidence. Quiet the mind.</p>
+    <p class="subtitle">Evidence or Anxiety. Choose one.</p>
 
     <div id="stage"></div>
 
     <div class="setup-section">
-        <p class="setup-title"><span>1. SETUP ITEMS</span> <span id="item-count">0</span></p>
-        <div class="preset-grid" id="presetGrid">
-            <label class="preset-icon camera-trigger" for="photo-input">📷</label>
-            <input type="file" id="photo-input" accept="image/*" capture="environment">
-            </div>
-        <button class="go-btn" onclick="startReady()">READY TO GO</button>
+        <p class="setup-title">Daily Rituals (Lock, Fire, Water, Window)</p>
+        <div class="preset-grid" id="presetGrid"></div>
+        <button class="go-btn" id="start-btn" onclick="triggerStart()" disabled>SHOOT ALL RITUALS</button>
     </div>
 
     <div class="footer-btns">
@@ -181,156 +183,202 @@
     </footer>
 </div>
 
+<input type="file" id="photo-input" accept="image/*" capture="environment">
+
 <div id="modal" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-x" onclick="hideModal()">×</span>
-        <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
+        <h3 id="modal-title">📱 Install</h3>
         <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
-            🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
-            🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen
+            🍏 <strong>iPhone:</strong> Share > Add to Home Screen<br><br>
+            🤖 <strong>Android:</strong> Menu (⋮) > Add to Home Screen
         </p>
     </div>
 </div>
 
 <script>
-    const presets = ["🔒", "🔥", "💧", "🔑", "📱", "🪪", "🎧", "⌚️", "💳", "🌂"];
-    let selected = JSON.parse(localStorage.getItem('rg_v3_sel')) || ["🔒", "🔥", "🔑"];
-    let photoItems = JSON.parse(localStorage.getItem('rg_v3_photos')) || []; 
+    const sacredKeys = ["🔒", "🔥", "💧", "🪟"];
+    const otherKeys = ["🔑", "📱", "🪪", "🎧", "⌚️", "💳"];
+    
+    // 状態管理
+    let sessionPhotos = {}; // { icon: dataURL }
+    let lastDate = localStorage.getItem('rg_last_date');
+    const today = new Date().toDateString();
+
+    // 日付が変わっていたら写真をクリア（揮発性儀式）
+    if (lastDate !== today) {
+        localStorage.removeItem('rg_session_photos');
+        localStorage.setItem('rg_last_date', today);
+    } else {
+        sessionPhotos = JSON.parse(localStorage.getItem('rg_session_photos') || '{}');
+    }
 
     const stage = document.getElementById('stage');
-    const presetGrid = document.getElementById('presetGrid');
+    const startBtn = document.getElementById('start-btn');
     const photoInput = document.getElementById('photo-input');
-    const mainUI = document.getElementById('main-ui');
-    const finalMsg = document.getElementById('final-msg');
+    let currentTargetIcon = null;
 
     function init() {
-        // Clear existing emoji icons except camera trigger
-        const triggers = presetGrid.querySelectorAll('.preset-icon:not(.camera-trigger)');
-        triggers.forEach(t => t.remove());
-
-        presets.forEach(icon => {
-            const div = document.createElement('div');
-            div.className = `preset-icon ${selected.includes(icon) ? 'active' : ''}`;
-            div.innerText = icon;
-            div.onclick = () => {
-                if (selected.includes(icon)) selected = selected.filter(i => i !== icon);
-                else selected.push(icon);
-                div.classList.toggle('active');
-                save();
-            };
-            presetGrid.appendChild(div);
-        });
-        updateCount();
+        renderStage();
         loadFooter();
     }
 
-    function save() {
-        localStorage.setItem('rg_v3_sel', JSON.stringify(selected));
-        localStorage.setItem('rg_v3_photos', JSON.stringify(photoItems));
-        updateCount();
+    function renderStage() {
+        stage.innerHTML = '';
+        let allCaptured = true;
+
+        sacredKeys.forEach(icon => {
+            const div = document.createElement('div');
+            div.className = 'item' + (sessionPhotos[icon] ? '' : ' empty');
+            if (sessionPhotos[icon]) {
+                div.innerHTML = `<img src="${sessionPhotos[icon]}">`;
+            } else {
+                div.innerText = icon;
+                allCaptured = false;
+            }
+            div.onclick = () => openCamera(icon);
+            stage.appendChild(div);
+        });
+
+        // 持ち物（任意）
+        otherKeys.forEach(icon => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerText = icon;
+            stage.appendChild(div);
+        });
+
+        startBtn.disabled = !allCaptured;
+        startBtn.innerText = allCaptured ? "READY TO GO" : "SHOOT ALL RITUALS";
     }
 
-    function updateCount() {
-        document.getElementById('item-count').innerText = selected.length + photoItems.length;
+    function openCamera(icon) {
+        currentTargetIcon = icon;
+        photoInput.click();
     }
 
     photoInput.onchange = e => {
         const file = e.target.files[0];
         if (!file) return;
+
         const reader = new FileReader();
         reader.onload = event => {
-            photoItems.push(event.target.result);
-            if (photoItems.length > 8) photoItems.shift(); 
-            save();
-            if (window.navigator.vibrate) window.navigator.vibrate(20);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 600;
+                canvas.height = 600;
+                
+                // 画像描画
+                ctx.drawImage(img, 0, 0, 600, 600);
+                
+                // 時刻刻印 (Evidence Stamp)
+                const now = new Date();
+                const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+                ctx.fillStyle = 'rgba(255, 77, 77, 0.8)';
+                ctx.font = '900 60px sans-serif';
+                ctx.fillText(timeStr, 30, 80);
+                ctx.font = '900 30px sans-serif';
+                ctx.fillText('VALID EVIDENCE', 30, 120);
+
+                sessionPhotos[currentTargetIcon] = canvas.toDataURL('image/jpeg', 0.7);
+                localStorage.setItem('rg_session_photos', JSON.stringify(sessionPhotos));
+                renderStage();
+            };
+            img.src = event.target.result;
         };
         reader.readAsDataURL(file);
     };
 
-    function startReady() {
-        const total = selected.length + photoItems.length;
-        if (total === 0) return;
+    function triggerStart() {
         if (window.navigator.vibrate) window.navigator.vibrate(50);
+        document.querySelector('.setup-section').style.display = 'none';
         
-        stage.innerHTML = '';
-        const allItems = [
-            ...selected.map(s => ({ type: 'emoji', val: s })),
-            ...photoItems.map(p => ({ type: 'photo', val: p }))
-        ];
-
-        allItems.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'item';
-            if (item.type === 'emoji') div.innerText = item.val;
-            else div.innerHTML = `<img src="${item.val}">`;
-
-            div.onclick = () => explode(div);
-            stage.appendChild(div);
+        // 破壊フェーズへ：全アイテムをクリック可能に
+        const items = stage.querySelectorAll('.item');
+        items.forEach(el => {
+            el.onclick = () => explode(el);
         });
-        
-        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Canvas パーティクルエンジン
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    class Particle {
+        constructor(x, y) {
+            this.x = x; this.y = y;
+            this.size = Math.random() * 8 + 4;
+            this.speedX = (Math.random() - 0.5) * 15;
+            this.speedY = (Math.random() - 0.5) * 15;
+            this.color = '#ff4d4d';
+            this.life = 1.0;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            this.life -= 0.02;
+        }
+        draw() {
+            ctx.fillStyle = `rgba(255, 77, 77, ${this.life})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+            if (particles[i].life <= 0) {
+                particles.splice(i, 1);
+                i--;
+            }
+        }
+        if (particles.length > 0) requestAnimationFrame(animateParticles);
     }
 
     function explode(el) {
         if (el.classList.contains('exploding')) return;
         el.classList.add('exploding');
-        if (window.navigator.vibrate) window.navigator.vibrate([40, 30, 40]);
+        if (window.navigator.vibrate) window.navigator.vibrate([30, 20, 30]);
 
-        // パーティクル噴射
         const rect = el.getBoundingClientRect();
-        for (let i = 0; i < 20; i++) {
-            createParticle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 30; i++) {
+            particles.push(new Particle(centerX, centerY));
         }
+        if (particles.length === 30) animateParticles();
 
         setTimeout(() => {
             el.style.opacity = '0';
-            el.style.transform = 'scale(1.5) rotate(15deg)';
-            setTimeout(() => {
-                el.remove();
-                checkClear();
-            }, 250);
-        }, 500);
-    }
-
-    function createParticle(x, y) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        document.body.appendChild(p);
-        const size = Math.random() * 12 + 6;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        p.style.left = `${x}px`;
-        p.style.top = `${y}px`;
-
-        const destX = (Math.random() - 0.5) * 400;
-        const destY = (Math.random() - 0.5) * 400;
-
-        p.animate([
-            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-            { transform: `translate(${destX}px, ${destY}px) scale(0) rotate(180deg)`, opacity: 0 }
-        ], {
-            duration: 700,
-            easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
-            fill: 'forwards'
-        });
-
-        setTimeout(() => p.remove(), 700);
+            el.style.pointerEvents = 'none';
+            checkClear();
+        }, 400);
     }
 
     function checkClear() {
-        if (stage.querySelectorAll('.item').length === 0) {
-            // Void Protocol
-            mainUI.style.opacity = '0';
-            // 実写データの一時的揮発（破壊完了後にIndexedDB/LSから消す場合はここ）
-            // photoItems = []; save(); // 必要なら有効化
-
+        const remaining = Array.from(stage.querySelectorAll('.item')).filter(el => el.style.opacity !== '0');
+        if (remaining.length === 0) {
+            document.getElementById('main-ui').style.opacity = '0';
             setTimeout(() => {
-                mainUI.style.display = 'none';
-                finalMsg.style.opacity = '1';
-                if (window.navigator.vibrate) window.navigator.vibrate([150, 100, 200]);
-                
+                document.getElementById('final-msg').style.opacity = '1';
+                if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 200]);
                 setTimeout(() => {
-                    finalMsg.style.opacity = '0';
+                    document.getElementById('final-msg').style.opacity = '0';
                     document.body.style.backgroundColor = '#fff';
                 }, 4000);
             }, 600);
