@@ -14,7 +14,7 @@
             display: flex; justify-content: center; min-height: 100vh;
             padding: env(safe-area-inset-top, 20px) 20px 40px; -webkit-font-smoothing: antialiased;
         }
-        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; }
+        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; transition: opacity 0.5s; }
         header { display: flex; justify-content: space-between; align-items: center; }
         h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
         .hub-link { text-decoration: none; font-size: 0.8rem; font-weight: 800; color: var(--main); background: var(--accent); padding: 8px 14px; border-radius: var(--radius); }
@@ -28,14 +28,14 @@
             width: 85px; height: 85px; background: #fff; border-radius: 12px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             font-size: 1.8rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            position: relative; overflow: hidden; border: 2px solid transparent; transition: opacity 0.3s;
+            position: relative; overflow: hidden; border: 2px solid transparent; transition: opacity 0.3s, transform 0.2s;
         }
         .item.empty { background: #eee; border: 2px dashed #ccc; opacity: 0.6; }
         .item img { width: 100%; height: 100%; object-fit: cover; }
         .item-label { position: absolute; bottom: 4px; font-size: 0.5rem; font-weight: 900; color: #999; }
 
         .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 18px; border: 2px solid var(--accent); }
-        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; }
+        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; display: flex; justify-content: space-between; }
         
         .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 15px; }
         .preset-icon {
@@ -44,7 +44,9 @@
         }
         .preset-icon.active { opacity: 1; border-color: var(--main); }
 
-        .go-btn { width: 100%; padding: 20px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1.1rem; font-weight: 900; cursor: pointer; }
+        .add-btn { background: #fff; border: 2px solid var(--accent); border-radius: 10px; padding: 5px 12px; font-size: 0.7rem; font-weight: 900; cursor: pointer; color: #666; }
+
+        .go-btn { width: 100%; padding: 20px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1.1rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; }
         .go-btn:disabled { opacity: 0.2; }
 
         .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
@@ -55,7 +57,7 @@
         footer a { color: inherit; text-decoration: underline; }
 
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
-        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; }
+        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; text-align: center; }
         #photo-input { display: none; }
         .item.exploding { animation: shake 0.1s infinite; border-color: var(--danger); }
         @keyframes shake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(2px, -2px); } }
@@ -79,17 +81,17 @@
     <div id="stage"></div>
 
     <div class="setup-section" id="setup">
-        <p class="setup-title">1. Rituals (Capture Required)</p>
-        <div id="ritual-list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
+        <p class="setup-title">1. RITUALS <button class="add-btn" onclick="addWindow()">+ ADD WINDOW</button></p>
+        <div id="ritual-list"></div>
         
-        <p class="setup-title">2. Items (Optional)</p>
+        <p class="setup-title" style="margin-top: 15px;">2. ITEMS (OPTIONAL)</p>
         <div class="preset-grid" id="presetGrid"></div>
         
         <button class="go-btn" id="start-btn" onclick="triggerStart()" disabled>SHOOT RITUALS</button>
     </div>
 
     <div class="footer-btns">
-        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
+        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
         <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
     </div>
 
@@ -110,28 +112,38 @@
 </div>
 
 <script>
-    const rituals = [
+    let rituals = JSON.parse(localStorage.getItem('rg_v6_ritual_list')) || [
         { id: 'l', icon: '🔒', label: 'LOCK' },
         { id: 'f', icon: '🔥', label: 'FIRE' },
         { id: 'w', icon: '💧', label: 'WATER' },
-        { id: 'w1', icon: '🪟', label: 'WIN 1' },
-        { id: 'w2', icon: '🪟', label: 'WIN 2' },
-        { id: 'w3', icon: '🪟', label: 'WIN 3' }
+        { id: 'w1', icon: '🪟', label: 'WINDOW 1' }
     ];
     const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "💳", "🔋", "💊", "🌂", "👜"];
     
-    let selectedPresets = JSON.parse(localStorage.getItem('rg_v5_sel')) || ["🔑", "📱"];
-    let sessionPhotos = JSON.parse(localStorage.getItem('rg_v5_photos') || '{}');
+    let selectedPresets = JSON.parse(localStorage.getItem('rg_v6_sel')) || ["🔑", "📱"];
+    let sessionPhotos = JSON.parse(localStorage.getItem('rg_v6_photos') || '{}');
     const today = new Date().toDateString();
-    if (localStorage.getItem('rg_v5_date') !== today) { sessionPhotos = {}; localStorage.setItem('rg_v5_date', today); }
+
+    if (localStorage.getItem('rg_v6_date') !== today) { 
+        sessionPhotos = {}; 
+        localStorage.setItem('rg_v6_date', today);
+        localStorage.setItem('rg_v6_photos', '{}');
+    }
 
     const stage = document.getElementById('stage');
     const startBtn = document.getElementById('start-btn');
     const photoInput = document.getElementById('photo-input');
+    const finalMsg = document.getElementById('final-msg');
+    const mainUI = document.getElementById('main-ui');
     let currentId = null;
 
     function init() {
-        // Render Presets
+        renderPresets();
+        renderStage();
+        loadFooter();
+    }
+
+    function renderPresets() {
         const pGrid = document.getElementById('presetGrid');
         pGrid.innerHTML = '';
         presets.forEach(p => {
@@ -142,13 +154,19 @@
                 if (selectedPresets.includes(p)) selectedPresets = selectedPresets.filter(i => i !== p);
                 else selectedPresets.push(p);
                 div.classList.toggle('active');
-                localStorage.setItem('rg_v5_sel', JSON.stringify(selectedPresets));
+                localStorage.setItem('rg_v6_sel', JSON.stringify(selectedPresets));
                 renderStage();
             };
             pGrid.appendChild(div);
         });
+    }
+
+    function addWindow() {
+        const winCount = rituals.filter(r => r.id.startsWith('w') && r.id !== 'w').length;
+        if (winCount >= 8) return;
+        rituals.push({ id: `w${winCount + 1}`, icon: '🪟', label: `WINDOW ${winCount + 1}` });
+        localStorage.setItem('rg_v6_ritual_list', JSON.stringify(rituals));
         renderStage();
-        loadFooter();
     }
 
     function renderStage() {
@@ -168,6 +186,7 @@
             stage.appendChild(div);
         });
         startBtn.disabled = count < rituals.length;
+        startBtn.innerText = count < rituals.length ? "SHOOT ALL RITUALS" : "READY TO GO";
     }
 
     function openCam(id) { currentId = id; photoInput.click(); }
@@ -180,10 +199,10 @@
             img.onload = () => {
                 const cvs = document.createElement('canvas'); cvs.width = 600; cvs.height = 600;
                 const ctx = cvs.getContext('2d'); ctx.drawImage(img, 0, 0, 600, 600);
-                ctx.fillStyle = 'rgba(255, 77, 77, 0.9)'; ctx.font = '900 40px sans-serif';
-                ctx.fillText(new Date().toLocaleTimeString(), 20, 50);
+                ctx.fillStyle = 'rgba(255, 77, 77, 0.9)'; ctx.font = '900 45px sans-serif';
+                ctx.fillText(new Date().toLocaleTimeString(), 25, 60);
                 sessionPhotos[currentId] = cvs.toDataURL('image/jpeg', 0.6);
-                localStorage.setItem('rg_v5_photos', JSON.stringify(sessionPhotos));
+                localStorage.setItem('rg_v6_photos', JSON.stringify(sessionPhotos));
                 renderStage();
             };
             img.src = ev.target.result;
@@ -195,8 +214,10 @@
         stage.classList.add('active');
         document.getElementById('setup').style.display = 'none';
         stage.querySelectorAll('.item').forEach(el => el.onclick = () => explode(el));
+        stage.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // Canvas Particles
     const cvs = document.getElementById('particle-canvas');
     const ctx = cvs.getContext('2d');
     let particles = [];
@@ -204,7 +225,7 @@
     window.onresize = resize; resize();
 
     class P {
-        constructor(x, y) { this.x = x; this.y = y; this.size = Math.random()*8+4; this.vX = (Math.random()-0.5)*15; this.vY = (Math.random()-0.5)*15; this.life = 1; }
+        constructor(x, y) { this.x = x; this.y = y; this.size = Math.random()*8+4; this.vX = (Math.random()-0.5)*18; this.vY = (Math.random()-0.5)*18; this.life = 1; }
         update() { this.x += this.vX; this.y += this.vY; this.life -= 0.02; }
         draw() { ctx.fillStyle = `rgba(255, 77, 77, ${this.life})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
     }
@@ -213,15 +234,27 @@
 
     function explode(el) {
         if (el.classList.contains('exploding')) return; el.classList.add('exploding');
-        const r = el.getBoundingClientRect(); for(let i=0; i<30; i++) particles.push(new P(r.left+42, r.top+42));
+        const r = el.getBoundingClientRect(); for(let i=0; i<35; i++) particles.push(new P(r.left+r.width/2, r.top+r.height/2));
         anim();
+        if (window.navigator.vibrate) window.navigator.vibrate([30, 20]);
         setTimeout(() => { el.style.opacity = '0'; el.style.pointerEvents = 'none'; check(); }, 400);
     }
 
     function check() {
         if (!Array.from(stage.querySelectorAll('.item')).some(i => i.style.opacity !== '0')) {
-            document.getElementById('final-msg').style.opacity = '1';
-            setTimeout(() => location.reload(), 3000);
+            // Void Protocol: Destroy Evidence & UI
+            sessionPhotos = {};
+            localStorage.setItem('rg_v6_photos', '{}');
+            mainUI.style.opacity = '0';
+            setTimeout(() => {
+                mainUI.style.display = 'none';
+                finalMsg.style.opacity = '1';
+                document.body.style.backgroundColor = '#fff';
+                if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 200]);
+                setTimeout(() => {
+                    finalMsg.style.opacity = '0';
+                }, 3000);
+            }, 600);
         }
     }
 
