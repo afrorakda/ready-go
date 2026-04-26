@@ -18,10 +18,8 @@
             --danger: #ff4d4d;
         }
 
-        /* 憲法遵守: 角丸15px / iOS Safari対策 / 全域選択禁止 */
+        /* 憲法遵守: 角丸15px / iOS Safari対策 */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-        
-        /* 入力エリアのみテキスト選択許可 */
         input { -webkit-user-select: text; user-select: text; }
 
         body {
@@ -33,6 +31,7 @@
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
+            overflow-x: hidden;
         }
 
         .container {
@@ -41,31 +40,17 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            transition: opacity 0.5s;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        header { display: flex; justify-content: space-between; align-items: center; }
         h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
+        .hub-link { text-decoration: none; font-size: 0.8rem; font-weight: 800; color: var(--main); background: var(--accent); padding: 8px 14px; border-radius: var(--radius); }
+        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; }
 
-        .hub-link {
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: 800;
-            color: var(--main);
-            background: var(--accent);
-            padding: 8px 14px;
-            border-radius: var(--radius);
-        }
-
-        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; text-align: left; }
-
-        /* Stage Area */
+        /* Stage: 破壊の戦場 */
         #stage {
-            min-height: 200px;
+            min-height: 280px;
             position: relative;
             background: var(--input-bg);
             border-radius: var(--radius);
@@ -75,119 +60,123 @@
             justify-content: center;
             gap: 12px;
             padding: 20px;
-            transition: background 0.3s;
             border: 2px solid var(--accent);
+            overflow: hidden;
         }
 
         .item {
-            font-size: 2.5rem;
+            width: 80px; height: 80px;
+            background: #fff;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            z-index: 2;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: relative;
+            transition: transform 0.1s;
+            overflow: hidden;
         }
-        .item.exploding { color: var(--danger); animation: shake 0.1s infinite; transform: scale(1.2); }
-        .item.hidden { opacity: 0; transform: scale(0); pointer-events: none; }
-
+        .item img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* 破壊演出 */
+        .item.exploding {
+            animation: shake 0.15s infinite;
+            border: 2px solid var(--danger);
+            z-index: 10;
+        }
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            50% { transform: translate(-1px, -1px) rotate(1deg); }
-            100% { transform: translate(1px, -1px) rotate(-1deg); }
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            25% { transform: translate(-2px, -2px) rotate(1deg); }
+            50% { transform: translate(2px, -2px) rotate(-1deg); }
+            75% { transform: translate(-2px, 2px) rotate(0deg); }
+            100% { transform: translate(2px, 2px) rotate(0deg); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px; height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
         }
 
         #final-msg {
-            position: absolute;
+            position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2rem; font-weight: 900;
+            font-size: 3rem; font-weight: 900;
             opacity: 0; pointer-events: none;
-            transition: opacity 0.4s; z-index: 1;
+            transition: opacity 0.5s;
+            z-index: 2000;
+            color: var(--main);
+            text-align: center;
         }
-        #stage.cleared { background: #fff; }
-        #stage.cleared #final-msg { opacity: 1; }
 
-        /* Setup Section */
+        /* Setup Area */
         .setup-section {
             background: var(--input-bg);
             border-radius: var(--radius);
             padding: 18px;
             border: 2px solid var(--accent);
         }
-        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; }
+        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; display: flex; justify-content: space-between; }
         
-        .preset-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
-        }
+        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; }
         .preset-icon {
             font-size: 1.4rem; background: #fff; border: 2px solid var(--accent);
             border-radius: 10px; padding: 8px 0; text-align: center;
             cursor: pointer; opacity: 0.3; transition: 0.2s;
         }
-        .preset-icon.active { opacity: 1; border-color: var(--main); background: #fff; }
+        .preset-icon.active { opacity: 1; border-color: var(--main); }
 
-        input {
-            width: 100%; padding: 12px; border: 2px solid var(--accent);
-            border-radius: 10px; background: #fff; font-size: 1rem;
-            font-weight: 700; color: var(--main) !important;
-            margin-bottom: 10px; outline: none;
-            -webkit-appearance: none; -webkit-text-fill-color: var(--main) !important; opacity: 1 !important;
+        /* カメラ機能UI */
+        .photo-btn {
+            width: 100%; padding: 12px; background: #fff; border: 2px dashed #ccc;
+            border-radius: 10px; color: #888; font-weight: 800; font-size: 0.8rem;
+            margin-bottom: 10px; cursor: pointer;
         }
-        input::placeholder { color: #bbb !important; -webkit-text-fill-color: #bbb !important; }
+        #photo-input { display: none; }
 
         .go-btn {
-            width: 100%; padding: 18px; background: var(--main);
+            width: 100%; padding: 20px; background: var(--main);
             color: #fff; border: none; border-radius: var(--radius);
-            font-size: 1.1rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff;
+            font-size: 1.2rem; font-weight: 900; cursor: pointer;
         }
-        .go-btn:active { transform: scale(0.98); }
 
         .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
-        .kofi-btn {
-            background: var(--main); color: #fff; text-decoration: none;
-            padding: 16px; border-radius: var(--radius); text-align: center;
-            font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff;
-        }
-        .home-btn {
-            background: var(--accent); color: var(--main); border: none;
-            padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer;
-        }
+        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; }
+        .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
 
-        /* 鉄壁フッター（聖域） */
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
         footer a { color: inherit; text-decoration: underline; }
 
-        #modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-            align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: #fff; width: 90%; max-width: 340px; padding: 35px;
-            border-radius: var(--radius); text-align: left; position: relative;
-        }
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); text-align: left; position: relative; }
         .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="final-msg">DONE. GO!</div>
+
+<div class="container" id="main-ui">
     <header>
         <h1>Ready Go</h1>
         <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
     </header>
-    <p class="subtitle">Empty the list. Clear your mind.</p>
+    <p class="subtitle">Destroy the anxiety.</p>
 
-    <div id="stage">
-        <div id="final-msg">DONE. GO!</div>
-    </div>
+    <div id="stage"></div>
 
     <div class="setup-section">
-        <p class="setup-title">1. Setup Your Items</p>
+        <p class="setup-title"><span>1. Items & Actions</span> <span id="item-count">0</span></p>
         <div class="preset-grid" id="presetGrid"></div>
-        <input type="text" id="custom1" placeholder="Custom item 1" spellcheck="false">
-        <input type="text" id="custom2" placeholder="Custom item 2" spellcheck="false">
-        <button class="go-btn" onclick="triggerStart()">READY TO GO</button>
+        
+        <label class="photo-btn" for="photo-input">📸 Capture Real Evidence</label>
+        <input type="file" id="photo-input" accept="image/*" capture="environment">
+        
+        <button class="go-btn" onclick="startReady()">READY TO GO</button>
     </div>
 
     <div class="footer-btns">
@@ -213,18 +202,18 @@
 </div>
 
 <script>
-    const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "👓", "💳", "🔋", "💊", "🌂"];
-    let selected = JSON.parse(localStorage.getItem('rg_final_locked_sel')) || ["🔑", "📱", "🪪"];
-    let customItems = JSON.parse(localStorage.getItem('rg_final_locked_cus')) || ["", ""];
+    // 聖域項目: 施錠、ガス、水道を先頭に。
+    const presets = ["🔒", "🔥", "💧", "🔑", "📱", "🪪", "🎧", "⌚️", "💳", "🌂"];
+    let selected = JSON.parse(localStorage.getItem('rg_v2_sel')) || ["🔒", "🔥", "🔑"];
+    let photoItems = JSON.parse(localStorage.getItem('rg_v2_photos')) || []; // Base64 strings
 
     const stage = document.getElementById('stage');
     const presetGrid = document.getElementById('presetGrid');
-    const c1 = document.getElementById('custom1');
-    const c2 = document.getElementById('custom2');
+    const photoInput = document.getElementById('photo-input');
+    const mainUI = document.getElementById('main-ui');
+    const finalMsg = document.getElementById('final-msg');
 
     function init() {
-        c1.value = customItems[0];
-        c2.value = customItems[1];
         presetGrid.innerHTML = '';
         presets.forEach(icon => {
             const div = document.createElement('div');
@@ -234,62 +223,131 @@
                 if (selected.includes(icon)) selected = selected.filter(i => i !== icon);
                 else selected.push(icon);
                 div.classList.toggle('active');
-                localStorage.setItem('rg_final_locked_sel', JSON.stringify(selected));
+                save();
             };
             presetGrid.appendChild(div);
         });
+        updateCount();
         loadFooter();
     }
 
-    function triggerStart() {
-        if (window.navigator.vibrate) window.navigator.vibrate(50);
-        startReady();
+    function save() {
+        localStorage.setItem('rg_v2_sel', JSON.stringify(selected));
+        localStorage.setItem('rg_v2_photos', JSON.stringify(photoItems));
+        updateCount();
     }
 
+    function updateCount() {
+        document.getElementById('item-count').innerText = selected.length + photoItems.length;
+    }
+
+    // 写真撮影・保存
+    photoInput.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event => {
+            photoItems.push(event.target.result);
+            if (photoItems.length > 6) photoItems.shift(); // 最大6枚まで（パフォーマンス維持）
+            save();
+        };
+        reader.readAsDataURL(file);
+    };
+
     function startReady() {
-        customItems = [c1.value, c2.value];
-        localStorage.setItem('rg_final_locked_cus', JSON.stringify(customItems));
-        stage.classList.remove('cleared');
+        if (selected.length + photoItems.length === 0) return;
+        if (window.navigator.vibrate) window.navigator.vibrate(50);
         
-        // Clear previous items
-        const oldItems = stage.querySelectorAll('.item');
-        oldItems.forEach(i => i.remove());
+        stage.innerHTML = '';
+        
+        // 合体リスト作成
+        const allItems = [
+            ...selected.map(s => ({ type: 'emoji', val: s })),
+            ...photoItems.map(p => ({ type: 'photo', val: p }))
+        ];
 
-        const items = [...selected, ...customItems.filter(i => i.trim() !== "")];
-        if (items.length === 0) return;
+        allItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            if (item.type === 'emoji') div.innerText = item.val;
+            else div.innerHTML = `<img src="${item.val}">`;
 
-        items.forEach(text => {
-            const el = document.createElement('div');
-            el.className = 'item';
-            if (text.length > 2) el.style.fontSize = '1.2rem';
-            el.innerText = text;
-            el.onclick = () => {
-                if (window.navigator.vibrate) window.navigator.vibrate(20);
-                el.classList.add('exploding');
-                setTimeout(() => {
-                    el.classList.add('hidden');
-                    check();
-                }, 150);
-            };
-            el.style.transform = `rotate(${(Math.random() - 0.5) * 20}deg)`;
-            stage.appendChild(el);
+            div.onclick = () => explode(div);
+            stage.appendChild(div);
         });
         
-        // Scroll to stage on mobile
         stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function check() {
-        if (stage.querySelectorAll('.item:not(.hidden)').length === 0) {
-            stage.classList.add('cleared');
-            if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
+    // 破壊ロジック
+    function explode(el) {
+        if (el.classList.contains('exploding')) return;
+        el.classList.add('exploding');
+        if (window.navigator.vibrate) window.navigator.vibrate([30, 20, 30]);
+
+        // パーティクル生成
+        const rect = el.getBoundingClientRect();
+        for (let i = 0; i < 12; i++) {
+            createParticle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'scale(0)';
+            setTimeout(() => {
+                el.remove();
+                checkClear();
+            }, 200);
+        }, 400);
+    }
+
+    function createParticle(x, y) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        document.body.appendChild(p);
+        const size = Math.random() * 10 + 5;
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.left = `${x}px`;
+        p.style.top = `${y}px`;
+
+        const destinationX = (Math.random() - 0.5) * 300;
+        const destinationY = (Math.random() - 0.5) * 300;
+
+        p.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${destinationX}px, ${destinationY}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 600,
+            easing: 'cubic-bezier(0, .9, .57, 1)',
+            fill: 'forwards'
+        });
+
+        setTimeout(() => p.remove(), 600);
+    }
+
+    function checkClear() {
+        if (stage.querySelectorAll('.item').length === 0) {
+            // Void (儀式の完結)
+            mainUI.style.opacity = '0';
+            setTimeout(() => {
+                mainUI.style.display = 'none';
+                finalMsg.style.opacity = '1';
+                if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 200]);
+                
+                // 5秒後に完全白紙へ
+                setTimeout(() => {
+                    finalMsg.style.opacity = '0';
+                    document.body.style.backgroundColor = '#fff';
+                }, 4000);
+            }, 500);
         }
     }
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
 
-    // 鉄壁ロジック: 削除厳禁・聖域
+    // 鉄壁ロジック
     async function loadFooter() {
         try {
             const response = await fetch('footer.json');
@@ -302,7 +360,7 @@
                 if (data.modalTitle) document.getElementById('modal-title').innerText = data.modalTitle;
                 if (data.modalBody) document.getElementById('modal-body').innerHTML = data.modalBody;
             }
-        } catch (e) { console.log("Static footer active."); }
+        } catch (e) {}
     }
 
     init();
