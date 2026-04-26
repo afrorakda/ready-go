@@ -33,6 +33,13 @@
         .item.empty { background: #eee; border: 2px dashed #ccc; opacity: 0.5; }
         .item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
+        .del-x { 
+            position: absolute; top: 0; right: 0; width: 28px; height: 28px; 
+            background: var(--danger); color: #fff; border: none; 
+            border-bottom-left-radius: 10px; font-size: 16px; font-weight: 900; 
+            display: flex; align-items: center; justify-content: center; z-index: 50;
+        }
+
         .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 18px; border: 2px solid var(--accent); }
         .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .add-btn { background: var(--main); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; }
@@ -45,7 +52,6 @@
         .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
 
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
-        footer a { color: inherit; text-decoration: underline; }
         
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
         #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; color: var(--main); }
@@ -53,13 +59,6 @@
         #photo-input { display: none; }
         .item.exploding { animation: shake 0.1s infinite; border-color: var(--danger); }
         @keyframes shake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(2px, -2px); } }
-
-        .del-x { 
-            position: absolute; top: 0; right: 0; width: 24px; height: 24px; 
-            background: var(--danger); color: #fff; border: none; 
-            border-bottom-left-radius: 10px; font-size: 14px; font-weight: 900; 
-            display: flex; align-items: center; justify-content: center; z-index: 10;
-        }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); text-align: left; position: relative; }
@@ -92,8 +91,7 @@
     </div>
 
     <footer>
-        <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
-        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
+        No login / No tracking / No ads / Browser only Privacy Policy / afrorakda © 2026
     </footer>
 </div>
 
@@ -108,21 +106,21 @@
 </div>
 
 <script>
-    let dailyList = JSON.parse(localStorage.getItem('rg_v9_daily_list')) || [
+    let dailyList = JSON.parse(localStorage.getItem('rg_v10_daily_list')) || [
         { id: 'd1', icon: '🔒' }, { id: 'd2', icon: '🔥' }, { id: 'd3', icon: '💧' }, { id: 'd4', icon: '🪟' }
     ];
-    let permList = JSON.parse(localStorage.getItem('rg_v9_perm_list')) || [
+    let permList = JSON.parse(localStorage.getItem('rg_v10_perm_list')) || [
         { id: 'p1', icon: '🔑' }, { id: 'p2', icon: '👜' }
     ];
 
-    let dailyPhotos = JSON.parse(localStorage.getItem('rg_v9_daily_photos') || '{}');
-    let permPhotos = JSON.parse(localStorage.getItem('rg_v9_perm_photos') || '{}');
+    let dailyPhotos = JSON.parse(localStorage.getItem('rg_v10_daily_photos') || '{}');
+    let permPhotos = JSON.parse(localStorage.getItem('rg_v10_perm_photos') || '{}');
     const today = new Date().toDateString();
 
-    if (localStorage.getItem('rg_v9_date') !== today) {
+    if (localStorage.getItem('rg_v10_date') !== today) {
         dailyPhotos = {};
-        localStorage.setItem('rg_v9_date', today);
-        localStorage.setItem('rg_v9_daily_photos', '{}');
+        localStorage.setItem('rg_v10_date', today);
+        localStorage.setItem('rg_v10_daily_photos', '{}');
     }
 
     const stage = document.getElementById('stage');
@@ -132,54 +130,19 @@
     const mainUI = document.getElementById('main-ui');
     let currentTarget = null;
 
-    function init() { renderStage(); loadFooter(); }
-
-    function addItem(type) {
-        const id = 'custom_' + Date.now();
-        const icon = type === 'daily' ? '📸' : '🖼️';
-        if (type === 'daily') dailyList.push({ id, icon });
-        else permList.push({ id, icon });
-        saveLists();
-        renderStage();
-    }
-
-    function removeItem(e, id, type) {
-        e.stopPropagation();
-        if (!confirm("Delete this slot?")) return;
-        if (type === 'daily') {
-            dailyList = dailyList.filter(i => i.id !== id);
-            delete dailyPhotos[id];
-        } else {
-            permList = permList.filter(i => i.id !== id);
-            delete permPhotos[id];
-        }
-        saveLists();
-        savePhotos();
-        renderStage();
-    }
-
-    function saveLists() {
-        localStorage.setItem('rg_v9_daily_list', JSON.stringify(dailyList));
-        localStorage.setItem('rg_v9_perm_list', JSON.stringify(permList));
-    }
-
-    function savePhotos() {
-        localStorage.setItem('rg_v9_daily_photos', JSON.stringify(dailyPhotos));
-        localStorage.setItem('rg_v9_perm_photos', JSON.stringify(permPhotos));
-    }
-
     function renderStage() {
         stage.innerHTML = '';
         let dCount = 0;
+        const all = [...dailyList, ...permList];
 
-        [...dailyList, ...permList].forEach(item => {
+        all.forEach(item => {
             const isDaily = dailyList.some(d => d.id === item.id);
             const photo = isDaily ? dailyPhotos[item.id] : permPhotos[item.id];
             const div = document.createElement('div');
             div.className = 'item' + (photo ? '' : ' empty');
             
             if (photo) {
-                div.innerHTML = `<img src="${photo}"><button class="del-x" onclick="removeItem(event, '${item.id}', '${isDaily?'daily':'perm'}')">×</button>`;
+                div.innerHTML = `<img src="${photo}"><button class="del-x" onclick="window.removeItem(event, '${item.id}', '${isDaily?'daily':'perm'}')">×</button>`;
                 if(isDaily) dCount++;
             } else {
                 div.innerText = item.icon;
@@ -193,6 +156,33 @@
         startBtn.innerText = dCount < dailyList.length ? "SHOOT DAILY RITUALS" : "READY TO GO";
     }
 
+    window.removeItem = function(e, id, type) {
+        e.stopPropagation();
+        if (!confirm("Delete this?")) return;
+        if (type === 'daily') {
+            dailyList = dailyList.filter(i => i.id !== id);
+            delete dailyPhotos[id];
+        } else {
+            permList = permList.filter(i => i.id !== id);
+            delete permPhotos[id];
+        }
+        localStorage.setItem('rg_v10_daily_list', JSON.stringify(dailyList));
+        localStorage.setItem('rg_v10_perm_list', JSON.stringify(permList));
+        localStorage.setItem('rg_v10_daily_photos', JSON.stringify(dailyPhotos));
+        localStorage.setItem('rg_v10_perm_photos', JSON.stringify(permPhotos));
+        renderStage();
+    };
+
+    function addItem(type) {
+        const id = 'c' + Date.now();
+        const icon = type === 'daily' ? '📸' : '🖼️';
+        if (type === 'daily') dailyList.push({ id, icon });
+        else permList.push({ id, icon });
+        localStorage.setItem('rg_v10_daily_list', JSON.stringify(dailyList));
+        localStorage.setItem('rg_v10_perm_list', JSON.stringify(permList));
+        renderStage();
+    }
+
     function openCam(id, type) { currentTarget = { id, type }; photoInput.click(); }
 
     photoInput.onchange = e => {
@@ -201,22 +191,29 @@
         reader.onload = ev => {
             const img = new Image();
             img.onload = () => {
-                const cvs = document.createElement('canvas'); cvs.width = 600; cvs.height = 600;
-                const ctx = cvs.getContext('2d'); ctx.drawImage(img, 0, 0, 600, 600);
+                const cvs = document.createElement('canvas'); 
+                const size = 400; // 軽量化のためリサイズ
+                cvs.width = size; cvs.height = size;
+                const ctx = cvs.getContext('2d');
+                ctx.drawImage(img, 0, 0, size, size);
+                
                 if (currentTarget.type === 'daily') {
-                    ctx.fillStyle = 'rgba(255, 77, 77, 0.9)'; ctx.font = '900 45px sans-serif';
-                    ctx.fillText(new Date().toLocaleTimeString(), 25, 60);
+                    ctx.fillStyle = 'rgba(255, 77, 77, 0.9)'; ctx.font = '900 30px sans-serif';
+                    ctx.fillText(new Date().toLocaleTimeString(), 20, 40);
                 }
-                const data = cvs.toDataURL('image/jpeg', 0.6);
+                
+                const data = cvs.toDataURL('image/jpeg', 0.4); // 品質を落として容量節約
                 if (currentTarget.type === 'daily') dailyPhotos[currentTarget.id] = data;
                 else permPhotos[currentTarget.id] = data;
-                savePhotos();
-                renderStage(); // 確実に再描画
+                
+                localStorage.setItem('rg_v10_daily_photos', JSON.stringify(dailyPhotos));
+                localStorage.setItem('rg_v10_perm_photos', JSON.stringify(permPhotos));
+                renderStage();
             };
             img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
-        e.target.value = ''; // 同じファイルを選択しても反応するようにリセット
+        e.target.value = '';
     };
 
     function triggerStart() {
@@ -250,7 +247,7 @@
 
     function check() {
         if (!Array.from(stage.querySelectorAll('.item')).some(i => i.style.opacity !== '0')) {
-            dailyPhotos = {}; localStorage.setItem('rg_v9_daily_photos', '{}');
+            dailyPhotos = {}; localStorage.setItem('rg_v10_daily_photos', '{}');
             mainUI.style.opacity = '0';
             setTimeout(() => {
                 mainUI.style.display = 'none';
@@ -263,19 +260,7 @@
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
-    async function loadFooter() {
-        try {
-            const response = await fetch('footer.json');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.footerText) document.getElementById('footer-text').innerText = data.footerText;
-                if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
-                if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
-                if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
-            }
-        } catch (e) {}
-    }
-    init();
+    renderStage();
 </script>
 </body>
 </html>
