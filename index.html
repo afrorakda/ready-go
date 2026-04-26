@@ -18,60 +18,74 @@
             --danger: #ff4d4d;
         }
 
+        /* 憲法遵守: 角丸15px / iOS Safari対策 / 全域選択禁止 */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+        
+        /* 入力エリアのみテキスト選択許可 */
+        input { -webkit-user-select: text; user-select: text; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--main);
-            margin: 0;
             display: flex;
             justify-content: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
         }
 
         .container {
             width: 100%;
             max-width: 420px;
-            padding: 5px 15px 20px;
-            box-sizing: border-box;
-            text-align: center;
             display: flex;
             flex-direction: column;
+            gap: 15px;
         }
 
-        h1 { font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; letter-spacing: -1px; }
-        .subtitle { font-size: 0.8rem; color: #666; font-weight: 500; margin-bottom: 12px; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
+        h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
+
+        .hub-link {
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--main);
+            background: var(--accent);
+            padding: 8px 14px;
+            border-radius: var(--radius);
+        }
+
+        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; text-align: left; }
+
+        /* Stage Area */
         #stage {
-            flex: 1;
-            min-height: 160px;
-            max-height: 240px;
+            min-height: 200px;
             position: relative;
             background: var(--input-bg);
             border-radius: var(--radius);
-            margin-bottom: 15px;
             display: flex;
             flex-wrap: wrap;
             align-content: center;
             justify-content: center;
-            gap: 10px;
-            padding: 15px;
+            gap: 12px;
+            padding: 20px;
             transition: background 0.3s;
-            overflow: hidden;
+            border: 2px solid var(--accent);
         }
 
         .item {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             cursor: pointer;
             transition: transform 0.1s, opacity 0.2s;
-            user-select: none;
             z-index: 2;
         }
-        .item.exploding {
-            color: var(--danger);
-            transform: scale(1.2) rotate(10deg);
-            animation: shake 0.1s infinite;
-        }
+        .item.exploding { color: var(--danger); animation: shake 0.1s infinite; transform: scale(1.2); }
         .item.hidden { opacity: 0; transform: scale(0); pointer-events: none; }
 
         @keyframes shake {
@@ -82,27 +96,23 @@
 
         #final-msg {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            font-weight: 900;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s;
-            z-index: 1;
+            font-size: 2rem; font-weight: 900;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s; z-index: 1;
         }
         #stage.cleared { background: #fff; }
         #stage.cleared #final-msg { opacity: 1; }
 
+        /* Setup Section */
         .setup-section {
             background: var(--input-bg);
             border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: left;
+            padding: 18px;
+            border: 2px solid var(--accent);
         }
-        .setup-title { font-size: 0.7rem; font-weight: 800; color: #999; margin-bottom: 10px; }
+        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; }
         
         .preset-grid {
             display: grid;
@@ -111,83 +121,69 @@
             margin-bottom: 15px;
         }
         .preset-icon {
-            font-size: 1.3rem;
-            background: #fff;
-            border: 2px solid var(--accent);
-            border-radius: 10px;
-            padding: 6px;
-            text-align: center;
-            cursor: pointer;
-            opacity: 0.2;
+            font-size: 1.4rem; background: #fff; border: 2px solid var(--accent);
+            border-radius: 10px; padding: 8px 0; text-align: center;
+            cursor: pointer; opacity: 0.3; transition: 0.2s;
         }
-        .preset-icon.active { opacity: 1; border-color: var(--main); }
+        .preset-icon.active { opacity: 1; border-color: var(--main); background: #fff; }
 
         input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid var(--accent);
-            border-radius: 10px;
-            background: #fff;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--main) !important;
-            margin-bottom: 8px;
-            outline: none;
-            -webkit-appearance: none;
-            -webkit-text-fill-color: var(--main) !important;
+            width: 100%; padding: 12px; border: 2px solid var(--accent);
+            border-radius: 10px; background: #fff; font-size: 1rem;
+            font-weight: 700; color: var(--main) !important;
+            margin-bottom: 10px; outline: none;
+            -webkit-appearance: none; -webkit-text-fill-color: var(--main) !important; opacity: 1 !important;
         }
         input::placeholder { color: #bbb !important; -webkit-text-fill-color: #bbb !important; }
 
         .go-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--main);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
+            width: 100%; padding: 18px; background: var(--main);
+            color: #fff; border: none; border-radius: var(--radius);
+            font-size: 1.1rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff;
         }
         .go-btn:active { transform: scale(0.98); }
 
-        .footer-btns { margin-top: 15px; }
+        .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
         .kofi-btn {
-            display: inline-block; background: var(--main); color: #fff;
-            padding: 12px 25px; border-radius: var(--radius);
-            text-decoration: none; font-weight: bold; font-size: 14px; margin-bottom: 12px;
+            background: var(--main); color: #fff; text-decoration: none;
+            padding: 16px; border-radius: var(--radius); text-align: center;
+            font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff;
         }
         .home-btn {
-            display: block; width: 60%; margin: 0 auto; background: var(--accent);
-            color: var(--main); border: none; padding: 10px;
-            border-radius: var(--radius); font-weight: 700; font-size: 13px; cursor: pointer;
+            background: var(--accent); color: var(--main); border: none;
+            padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer;
         }
 
-        footer { margin-top: 20px; font-size: 11px; color: #aaa; line-height: 1.8; }
+        /* 鉄壁フッター（聖域） */
+        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
+        footer a { color: inherit; text-decoration: underline; }
 
         #modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px);
         }
         .modal-content {
-            background: #fff; width: 85%; max-width: 320px; padding: 30px;
+            background: #fff; width: 90%; max-width: 340px; padding: 35px;
             border-radius: var(--radius); text-align: left; position: relative;
         }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #ccc; cursor: pointer; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Ready Go</h1>
-    <p class="subtitle">Clear your mind. Empty the list.</p>
+    <header>
+        <h1>Ready Go</h1>
+        <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
+    </header>
+    <p class="subtitle">Empty the list. Clear your mind.</p>
 
     <div id="stage">
         <div id="final-msg">DONE. GO!</div>
     </div>
 
     <div class="setup-section">
-        <p class="setup-title">1. SETUP YOUR ITEMS</p>
+        <p class="setup-title">1. Setup Your Items</p>
         <div class="preset-grid" id="presetGrid"></div>
         <input type="text" id="custom1" placeholder="Custom item 1" spellcheck="false">
         <input type="text" id="custom2" placeholder="Custom item 2" spellcheck="false">
@@ -195,28 +191,28 @@
     </div>
 
     <div class="footer-btns">
-        <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
+        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
         <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
     </div>
 
     <footer>
-        <div>No login / No tracking / No ads / Browser only</div>
-        <div>Privacy Policy / afrorakda © 2026</div>
+        <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
+        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
     </footer>
 </div>
 
 <div id="modal" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-x" onclick="hideModal()">×</span>
-        <h3>📱 Install</h3>
-        <p>Add to your home screen.</p>
-        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
-        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
+        <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
+        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
+            🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
+            🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen
+        </p>
     </div>
 </div>
 
 <script>
-    // デイリー特化の10選に更新
     const presets = ["🔑", "📱", "🪪", "🎧", "⌚️", "👓", "💳", "🔋", "💊", "🌂"];
     let selected = JSON.parse(localStorage.getItem('rg_final_locked_sel')) || ["🔑", "📱", "🪪"];
     let customItems = JSON.parse(localStorage.getItem('rg_final_locked_cus')) || ["", ""];
@@ -242,6 +238,7 @@
             };
             presetGrid.appendChild(div);
         });
+        loadFooter();
     }
 
     function triggerStart() {
@@ -253,6 +250,8 @@
         customItems = [c1.value, c2.value];
         localStorage.setItem('rg_final_locked_cus', JSON.stringify(customItems));
         stage.classList.remove('cleared');
+        
+        // Clear previous items
         const oldItems = stage.querySelectorAll('.item');
         oldItems.forEach(i => i.remove());
 
@@ -262,28 +261,49 @@
         items.forEach(text => {
             const el = document.createElement('div');
             el.className = 'item';
-            if (text.length > 2) el.style.fontSize = '1.1rem';
+            if (text.length > 2) el.style.fontSize = '1.2rem';
             el.innerText = text;
             el.onclick = () => {
+                if (window.navigator.vibrate) window.navigator.vibrate(20);
                 el.classList.add('exploding');
                 setTimeout(() => {
                     el.classList.add('hidden');
                     check();
-                }, 200);
+                }, 150);
             };
             el.style.transform = `rotate(${(Math.random() - 0.5) * 20}deg)`;
             stage.appendChild(el);
         });
+        
+        // Scroll to stage on mobile
+        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function check() {
         if (stage.querySelectorAll('.item:not(.hidden)').length === 0) {
             stage.classList.add('cleared');
+            if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
         }
     }
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
+
+    // 鉄壁ロジック: 削除厳禁・聖域
+    async function loadFooter() {
+        try {
+            const response = await fetch('footer.json');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.footerText) document.getElementById('footer-text').innerText = data.footerText;
+                if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
+                if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
+                if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
+                if (data.modalTitle) document.getElementById('modal-title').innerText = data.modalTitle;
+                if (data.modalBody) document.getElementById('modal-body').innerHTML = data.modalBody;
+            }
+        } catch (e) { console.log("Static footer active."); }
+    }
 
     init();
 </script>
