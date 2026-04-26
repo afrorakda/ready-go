@@ -35,7 +35,7 @@
 
         .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 18px; border: 2px solid var(--accent); }
         .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .add-btn { background: var(--main); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; font-weight: 900; cursor: pointer; }
+        .add-btn { background: var(--main); color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 0.7rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; }
 
         .go-btn { width: 100%; padding: 20px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1.1rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; }
         .go-btn:disabled { opacity: 0.2; }
@@ -45,9 +45,10 @@
         .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
 
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
+        footer a { color: inherit; text-decoration: underline; }
         
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; }
-        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; }
+        #final-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; font-weight: 900; opacity: 0; pointer-events: none; z-index: 2000; color: var(--main); }
         
         #photo-input { display: none; }
         .item.exploding { animation: shake 0.1s infinite; border-color: var(--danger); }
@@ -79,8 +80,8 @@
     <div id="stage"></div>
 
     <div class="setup-section" id="setup">
-        <p class="setup-title">1. DAILY (Lock/Fire/Water/Win) <button class="add-btn" onclick="addItem('daily')">+ ADD</button></p>
-        <p class="setup-title" style="margin-top: 15px;">2. PERMANENT (Keys/Wallet) <button class="add-btn" onclick="addItem('perm')">+ ADD</button></p>
+        <p class="setup-title">1. DAILY (Reset Daily) <button class="add-btn" onclick="addItem('daily')">+ ADD</button></p>
+        <p class="setup-title" style="margin-top: 15px;">2. PERMANENT (Keep Photos) <button class="add-btn" onclick="addItem('perm')">+ ADD</button></p>
         
         <button class="go-btn" id="start-btn" onclick="triggerStart()" disabled style="margin-top: 15px;">SHOOT DAILY RITUALS</button>
     </div>
@@ -91,7 +92,8 @@
     </div>
 
     <footer>
-        No login / No tracking / No ads / Browser only Privacy Policy / afrorakda © 2026
+        <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
+        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
     </footer>
 </div>
 
@@ -106,21 +108,21 @@
 </div>
 
 <script>
-    let dailyList = JSON.parse(localStorage.getItem('rg_v8_daily_list')) || [
+    let dailyList = JSON.parse(localStorage.getItem('rg_v9_daily_list')) || [
         { id: 'd1', icon: '🔒' }, { id: 'd2', icon: '🔥' }, { id: 'd3', icon: '💧' }, { id: 'd4', icon: '🪟' }
     ];
-    let permList = JSON.parse(localStorage.getItem('rg_v8_perm_list')) || [
+    let permList = JSON.parse(localStorage.getItem('rg_v9_perm_list')) || [
         { id: 'p1', icon: '🔑' }, { id: 'p2', icon: '👜' }
     ];
 
-    let dailyPhotos = JSON.parse(localStorage.getItem('rg_v8_daily_photos') || '{}');
-    let permPhotos = JSON.parse(localStorage.getItem('rg_v8_perm_photos') || '{}');
+    let dailyPhotos = JSON.parse(localStorage.getItem('rg_v9_daily_photos') || '{}');
+    let permPhotos = JSON.parse(localStorage.getItem('rg_v9_perm_photos') || '{}');
     const today = new Date().toDateString();
 
-    if (localStorage.getItem('rg_v8_date') !== today) {
+    if (localStorage.getItem('rg_v9_date') !== today) {
         dailyPhotos = {};
-        localStorage.setItem('rg_v8_date', today);
-        localStorage.setItem('rg_v8_daily_photos', '{}');
+        localStorage.setItem('rg_v9_date', today);
+        localStorage.setItem('rg_v9_daily_photos', '{}');
     }
 
     const stage = document.getElementById('stage');
@@ -130,7 +132,7 @@
     const mainUI = document.getElementById('main-ui');
     let currentTarget = null;
 
-    function init() { renderStage(); }
+    function init() { renderStage(); loadFooter(); }
 
     function addItem(type) {
         const id = 'custom_' + Date.now();
@@ -157,13 +159,13 @@
     }
 
     function saveLists() {
-        localStorage.setItem('rg_v8_daily_list', JSON.stringify(dailyList));
-        localStorage.setItem('rg_v8_perm_list', JSON.stringify(permList));
+        localStorage.setItem('rg_v9_daily_list', JSON.stringify(dailyList));
+        localStorage.setItem('rg_v9_perm_list', JSON.stringify(permList));
     }
 
     function savePhotos() {
-        localStorage.setItem('rg_v8_daily_photos', JSON.stringify(dailyPhotos));
-        localStorage.setItem('rg_v8_perm_photos', JSON.stringify(permPhotos));
+        localStorage.setItem('rg_v9_daily_photos', JSON.stringify(dailyPhotos));
+        localStorage.setItem('rg_v9_perm_photos', JSON.stringify(permPhotos));
     }
 
     function renderStage() {
@@ -171,7 +173,7 @@
         let dCount = 0;
 
         [...dailyList, ...permList].forEach(item => {
-            const isDaily = dailyList.find(d => d.id === item.id);
+            const isDaily = dailyList.some(d => d.id === item.id);
             const photo = isDaily ? dailyPhotos[item.id] : permPhotos[item.id];
             const div = document.createElement('div');
             div.className = 'item' + (photo ? '' : ' empty');
@@ -209,11 +211,12 @@
                 if (currentTarget.type === 'daily') dailyPhotos[currentTarget.id] = data;
                 else permPhotos[currentTarget.id] = data;
                 savePhotos();
-                renderStage();
+                renderStage(); // 確実に再描画
             };
             img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
+        e.target.value = ''; // 同じファイルを選択しても反応するようにリセット
     };
 
     function triggerStart() {
@@ -247,7 +250,7 @@
 
     function check() {
         if (!Array.from(stage.querySelectorAll('.item')).some(i => i.style.opacity !== '0')) {
-            dailyPhotos = {}; localStorage.setItem('rg_v8_daily_photos', '{}');
+            dailyPhotos = {}; localStorage.setItem('rg_v9_daily_photos', '{}');
             mainUI.style.opacity = '0';
             setTimeout(() => {
                 mainUI.style.display = 'none';
@@ -260,6 +263,18 @@
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
+    async function loadFooter() {
+        try {
+            const response = await fetch('footer.json');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.footerText) document.getElementById('footer-text').innerText = data.footerText;
+                if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
+                if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
+                if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
+            }
+        } catch (e) {}
+    }
     init();
 </script>
 </body>
