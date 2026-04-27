@@ -75,6 +75,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 2rem;
             animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
         .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
         @keyframes pop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -93,12 +94,14 @@
         .cam-btn span { font-size: 1.5rem; }
         .cam-btn label { font-size: 0.6rem; font-weight: 900; color: #999; pointer-events: none; }
         .cam-btn.done { opacity: 0.3; border-style: dashed; }
+        .cam-btn.done::after { content: '✓'; position: absolute; top: 5px; right: 8px; color: var(--main); font-weight: 900; font-size: 0.8rem; }
 
         .go-btn {
             width: 100%; padding: 20px; background: var(--main);
             color: #fff; border: none; border-radius: var(--radius);
             font-size: 1.2rem; font-weight: 900; cursor: pointer;
             -webkit-text-fill-color: #fff;
+            transition: opacity 0.2s;
         }
 
         /* Destruction Overlay */
@@ -110,9 +113,20 @@
             width: 100%; max-width: 350px; background: #fff; border-radius: var(--radius);
             padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center;
         }
-        .destruct-img-box { width: 100%; aspect-ratio: 1; border-radius: 10px; background: var(--input-bg); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 5rem; overflow: hidden; }
+        .destruct-img-box { 
+            width: 100%; aspect-ratio: 1; border-radius: 10px; background: var(--input-bg); 
+            margin-bottom: 20px; display: flex; align-items: center; justify-content: center; 
+            font-size: 5rem; overflow: hidden; position: relative;
+        }
         .destruct-img-box img { width: 100%; height: 100%; object-fit: cover; }
         
+        /* 完了の刻印エフェクト */
+        .destroy-mask {
+            position: absolute; inset: 0; background: var(--danger);
+            opacity: 0; transition: opacity 0.1s; pointer-events: none;
+        }
+        .shaking .destroy-mask { opacity: 0.6; }
+
         .heavy-shake { animation: shake 0.1s infinite; border: 4px solid var(--danger); }
         @keyframes shake { 0%{transform:translate(2px,2px)} 50%{transform:translate(-2px,-2px)} 100%{transform:translate(2px,-2px)} }
 
@@ -123,9 +137,16 @@
         }
         .void-msg { font-size: 2.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
         .void-time { font-size: 1rem; font-weight: 800; color: #999; }
-        .reset-trigger { margin-top: 100px; font-size: 0.7rem; color: #eee; background: none; border: none; padding: 20px; }
+        
+        /* リセットボタンの隠匿（長押し） */
+        .reset-trigger { 
+            margin-top: 100px; font-size: 0.75rem; color: #ddd; 
+            background: none; border: none; padding: 20px; font-weight: 800;
+            transition: color 0.3s;
+        }
+        .reset-trigger.active { color: var(--danger); }
 
-        /* 鉄壁フッター：憲法復元 */
+        /* 鉄壁フッター */
         .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff; }
         .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
@@ -142,15 +163,21 @@
 
 <div id="destruct-overlay">
     <div class="destruct-card" id="current-card">
-        <div class="destruct-img-box" id="target-box"></div>
-        <button class="go-btn" style="background:var(--danger);" onclick="destroyCurrent()">DESTROY & CONFIRM</button>
+        <div class="destruct-img-box" id="target-box">
+            <div class="destroy-mask" id="d-mask"></div>
+        </div>
+        <button class="go-btn" id="d-btn" style="background:var(--danger);" onclick="destroyCurrent()">DESTROY & CONFIRM</button>
     </div>
 </div>
 
 <div id="void-screen">
     <div class="void-msg">ALL DONE.<br>Ready GO.</div>
     <div id="final-time" class="void-time"></div>
-    <button class="reset-trigger" ontouchstart="startResetTimer()" ontouchend="clearResetTimer()" onmousedown="startResetTimer()" onmouseup="clearResetTimer()">HOLD TO RESET RITUAL</button>
+    <button class="reset-trigger" id="reset-btn" 
+            ontouchstart="startResetTimer()" ontouchend="clearResetTimer()" 
+            onmousedown="startResetTimer()" onmouseup="clearResetTimer()">
+        HOLD TO RESET RITUAL
+    </button>
 </div>
 
 <div class="container" id="main-ui">
@@ -205,6 +232,7 @@
     let captured = [];
     let currentIdx = 0;
     let rTimer;
+    let isDestroying = false;
     const MAX = 10;
 
     const camIn = document.getElementById('cam-input');
@@ -269,17 +297,40 @@
         }
         const item = captured[currentIdx];
         const box = document.getElementById('target-box');
-        box.innerHTML = item.type === 'img' ? `<img src="${item.val}">` : item.val;
+        const mask = document.getElementById('d-mask');
+        
+        // 前のマスクを消去してから描画
+        mask.style.opacity = "0";
+        box.innerHTML = '';
+        box.appendChild(mask);
+        
+        if (item.type === 'img') {
+            const img = document.createElement('img');
+            img.src = item.val;
+            box.appendChild(img);
+        } else {
+            box.appendChild(document.createTextNode(item.val));
+        }
+        
         document.getElementById('current-card').classList.remove('heavy-shake');
+        isDestroying = false;
     }
 
     function destroyCurrent() {
+        if(isDestroying) return;
+        isDestroying = true;
+        
         const card = document.getElementById('current-card');
+        const mask = document.getElementById('d-mask');
+        
         card.classList.add('heavy-shake');
+        mask.style.opacity = "0.7"; // 完了の刻印
+
+        // 脳に刻印するための「タメ」
         setTimeout(() => {
             currentIdx++;
             showNext();
-        }, 500);
+        }, 600);
     }
 
     function finish() {
@@ -297,8 +348,20 @@
         captured = []; 
     }
 
-    function startResetTimer() { rTimer = setTimeout(() => { localStorage.clear(); location.reload(); }, 2500); }
-    function clearResetTimer() { clearTimeout(rTimer); }
+    function startResetTimer() {
+        const btn = document.getElementById('reset-btn');
+        btn.classList.add('active');
+        rTimer = setTimeout(() => {
+            localStorage.clear();
+            location.reload();
+        }, 3000); // 3秒長押しでリセット
+    }
+
+    function clearResetTimer() {
+        const btn = document.getElementById('reset-btn');
+        btn.classList.remove('active');
+        clearTimeout(rTimer);
+    }
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
