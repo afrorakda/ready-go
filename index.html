@@ -53,7 +53,7 @@
         
         .subtitle { font-size: 0.85rem; color: #666; font-weight: 700; }
 
-        /* Preview Window */
+        /* Preview Area */
         #stage {
             min-height: 250px;
             background: var(--input-bg);
@@ -72,30 +72,27 @@
             border-radius: 10px;
             overflow: hidden;
             border: 1px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
             animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
         @keyframes pop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* Setup Area */
-        .setup-section {
-            background: var(--input-bg);
-            border-radius: var(--radius);
-            padding: 18px;
-            border: 2px solid var(--accent);
-        }
-        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; }
+        .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 18px; border: 2px solid var(--accent); }
+        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; display: flex; justify-content: space-between; }
         
         .camera-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .cam-btn {
             background: #fff; border: 2px solid var(--accent); border-radius: var(--radius);
             padding: 15px 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; position: relative;
         }
         .cam-btn:active { background: var(--accent); }
         .cam-btn span { font-size: 1.5rem; }
         .cam-btn label { font-size: 0.6rem; font-weight: 900; color: #999; pointer-events: none; }
-        .cam-btn.done { opacity: 0.2; pointer-events: none; border-style: dashed; }
+        .cam-btn.done { opacity: 0.3; border-style: dashed; }
 
         .go-btn {
             width: 100%; padding: 20px; background: var(--main);
@@ -113,35 +110,39 @@
             width: 100%; max-width: 350px; background: #fff; border-radius: var(--radius);
             padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center;
         }
-        .destruct-img { width: 100%; aspect-ratio: 1; border-radius: 10px; object-fit: cover; margin-bottom: 20px; }
+        .destruct-img-box { width: 100%; aspect-ratio: 1; border-radius: 10px; background: var(--input-bg); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 5rem; overflow: hidden; }
+        .destruct-img-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* 激震アニメーション */
         .heavy-shake { animation: shake 0.1s infinite; border: 4px solid var(--danger); }
         @keyframes shake { 0%{transform:translate(2px,2px)} 50%{transform:translate(-2px,-2px)} 100%{transform:translate(2px,-2px)} }
 
-        /* ホワイトアウト (THE VOID) */
+        /* THE VOID (Whiteout) */
         #void-screen {
             position: fixed; inset: 0; background: #fff; z-index: 2000;
             display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px;
         }
         .void-msg { font-size: 2.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 20px; }
         .void-time { font-size: 1rem; font-weight: 800; color: #999; }
-        .reset-trigger { margin-top: 100px; font-size: 0.7rem; color: #eee; background: none; border: none; }
+        .reset-trigger { margin-top: 100px; font-size: 0.7rem; color: #eee; background: none; border: none; padding: 20px; }
 
-        /* 鉄壁フッター */
-        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 30px; }
+        /* 鉄壁フッター：憲法復元 */
+        .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff; }
+        .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
+
+        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 20px; }
         footer a { color: inherit; text-decoration: underline; }
 
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); position: relative; }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; }
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 3000; backdrop-filter: blur(4px); }
+        .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); position: relative; text-align: left; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="destruct-overlay">
     <div class="destruct-card" id="current-card">
-        <img id="target-img" class="destruct-img" src="">
+        <div class="destruct-img-box" id="target-box"></div>
         <button class="go-btn" style="background:var(--danger);" onclick="destroyCurrent()">DESTROY & CONFIRM</button>
     </div>
 </div>
@@ -149,7 +150,7 @@
 <div id="void-screen">
     <div class="void-msg">ALL DONE.<br>Ready GO.</div>
     <div id="final-time" class="void-time"></div>
-    <button class="reset-trigger" ontouchstart="startResetTimer()" ontouchend="clearResetTimer()">HOLD TO RESET RITUAL</button>
+    <button class="reset-trigger" ontouchstart="startResetTimer()" ontouchend="clearResetTimer()" onmousedown="startResetTimer()" onmouseup="clearResetTimer()">HOLD TO RESET RITUAL</button>
 </div>
 
 <div class="container" id="main-ui">
@@ -160,29 +161,32 @@
     <p class="subtitle">Capture evidence. Destroy memory.</p>
 
     <div id="stage">
-        <div id="empty-msg" style="width:100%; text-align:center; padding-top:100px; color:#ccc; font-weight:800; font-size:0.8rem;">NO EVIDENCE CAPTURED</div>
+        <div id="empty-msg" style="width:100%; text-align:center; padding-top:100px; color:#ccc; font-weight:800; font-size:0.8rem;">NO EVIDENCE</div>
     </div>
 
     <div class="setup-section">
-        <p class="setup-title">CAPTURE RITUAL</p>
+        <p class="setup-title"><span>RITUAL ITEMS</span><span id="counter">0 / 10</span></p>
         <div class="camera-grid">
-            <div class="cam-btn" onclick="triggerCam('fire')"><span>🔥</span><label>FIRE</label></div>
-            <div class="cam-btn" onclick="triggerCam('water')"><span>💧</span><label>WATER</label></div>
-            <div class="cam-btn" onclick="triggerCam('lock')"><span>🔒</span><label>LOCK</label></div>
-            <div class="cam-btn" onclick="triggerCam('window')"><span>🪟</span><label>WINDOW</label></div>
-            <div class="cam-btn" onclick="triggerCam('plug')"><span>🔌</span><label>PLUG</label></div>
-            <div class="cam-btn" onclick="triggerCam('etc')"><span>📷</span><label>OTHER</label></div>
+            <div class="cam-btn" onclick="triggerAction('🔥', 'FIRE')"><span>🔥</span><label>FIRE</label></div>
+            <div class="cam-btn" onclick="triggerAction('💧', 'WATER')"><span>💧</span><label>WATER</label></div>
+            <div class="cam-btn" onclick="triggerAction('🔒', 'LOCK')"><span>🔒</span><label>LOCK</label></div>
+            <div class="cam-btn" onclick="triggerAction('🪟', 'WINDOW')"><span>🪟</span><label>WINDOW</label></div>
+            <div class="cam-btn" onclick="triggerAction('🔌', 'PLUG')"><span>🔌</span><label>PLUG</label></div>
+            <div class="cam-btn" onclick="triggerPhone()"><span>📱</span><label>PHONE</label></div>
+            <div class="cam-btn" style="grid-column: span 3;" onclick="triggerAction('📷', 'OTHER')"><span>📷</span><label>OTHER EVIDENCE</label></div>
         </div>
         <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none;">
         <button class="go-btn" id="ready-btn" onclick="startDestruction()" style="display:none;">READY TO GO</button>
     </div>
 
-    <button class="hub-link" style="background:var(--accent); border:none; padding:15px; cursor:pointer;" onclick="showModal()">Add to Home Screen</button>
+    <div class="footer-btns">
+        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
+        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+    </div>
 
     <footer>
         <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
-        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span><br>
-        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" style="text-decoration:none;">☕️ buy me a coffee</a>
+        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
     </footer>
 </div>
 
@@ -190,103 +194,115 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-x" onclick="hideModal()">×</span>
         <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
-        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">Share > Add to Home Screen</p>
+        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
+            🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
+            🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen
+        </p>
     </div>
 </div>
 
 <script>
-    let capturedImages = [];
-    let currentDestructIndex = 0;
-    let resetTimer;
+    let captured = [];
+    let currentIdx = 0;
+    let rTimer;
+    const MAX = 10;
 
-    const camInput = document.getElementById('cam-input');
+    const camIn = document.getElementById('cam-input');
     const stage = document.getElementById('stage');
     const readyBtn = document.getElementById('ready-btn');
+    const counter = document.getElementById('counter');
 
-    function triggerCam(type) {
-        camInput.onchange = (e) => {
+    function updateUI() {
+        counter.innerText = `${captured.length} / ${MAX}`;
+        readyBtn.style.display = captured.length > 0 ? 'block' : 'none';
+        document.getElementById('empty-msg').style.display = captured.length > 0 ? 'none' : 'block';
+    }
+
+    function triggerAction(emoji, label) {
+        if (captured.length >= MAX) return;
+        camIn.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (event) => {
-                const data = event.target.result;
-                capturedImages.push(data);
-                renderThumb(data);
-                if (type !== 'etc') {
-                    // 他以外のアイコンは一度撮ったら無効化
-                    const btns = document.querySelectorAll('.cam-btn');
-                    btns.forEach(b => { if(b.innerText.includes(getEmoji(type))) b.classList.add('done'); });
-                }
-                readyBtn.style.display = 'block';
-                document.getElementById('empty-msg').style.display = 'none';
+            reader.onload = (ev) => {
+                captured.push({ type: 'img', val: ev.target.result, label: label });
+                addThumb(ev.target.result, 'img');
+                markDone(emoji);
+                updateUI();
             };
             reader.readAsDataURL(file);
         };
-        camInput.click();
+        camIn.click();
     }
 
-    function getEmoji(type) {
-        return {fire:'🔥', water:'💧', lock:'🔒', window:'🪟', plug:'🔌'}[type] || '📷';
+    function triggerPhone() {
+        if (captured.length >= MAX) return;
+        captured.push({ type: 'emoji', val: '📱', label: 'PHONE' });
+        addThumb('📱', 'emoji');
+        markDone('📱');
+        updateUI();
     }
 
-    function renderThumb(src) {
+    function markDone(emoji) {
+        if (emoji === '📷') return;
+        const btns = document.querySelectorAll('.cam-btn');
+        btns.forEach(b => { if(b.innerText.includes(emoji)) b.classList.add('done'); });
+    }
+
+    function addThumb(val, type) {
         const div = document.createElement('div');
         div.className = 'preview-thumb';
-        div.innerHTML = `<img src="${src}">`;
+        div.innerHTML = type === 'img' ? `<img src="${val}">` : val;
         stage.appendChild(div);
     }
 
     function startDestruction() {
-        if (capturedImages.length === 0) return;
-        currentDestructIndex = 0;
+        currentIdx = 0;
         document.getElementById('destruct-overlay').style.display = 'flex';
-        showNextTarget();
+        showNext();
     }
 
-    function showNextTarget() {
-        if (currentDestructIndex >= capturedImages.length) {
-            finishEverything();
+    function showNext() {
+        if (currentIdx >= captured.length) {
+            finish();
             return;
         }
-        document.getElementById('target-img').src = capturedImages[currentDestructIndex];
+        const item = captured[currentIdx];
+        const box = document.getElementById('target-box');
+        box.innerHTML = item.type === 'img' ? `<img src="${item.val}">` : item.val;
         document.getElementById('current-card').classList.remove('heavy-shake');
     }
 
     function destroyCurrent() {
         const card = document.getElementById('current-card');
         card.classList.add('heavy-shake');
-        if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 100]);
-
         setTimeout(() => {
-            currentDestructIndex++;
-            showNextTarget();
-        }, 600);
+            currentIdx++;
+            showNext();
+        }, 500);
     }
 
-    function finishEverything() {
+    function finish() {
         const now = new Date();
-        const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
         
         document.getElementById('void-screen').style.display = 'flex';
-        document.getElementById('final-time').innerText = timeStr;
+        document.getElementById('final-time').innerText = `${dateStr} ${timeStr}`;
         document.getElementById('destruct-overlay').style.display = 'none';
+        document.getElementById('main-ui').style.display = 'none';
         
-        // メモリ解放（データの揮発）
-        capturedImages = [];
+        localStorage.setItem('rg_lock', Date.now());
+        localStorage.setItem('rg_time', `${dateStr} ${timeStr}`);
+        captured = []; 
     }
 
-    // リセットタイマー（誤操作防止）
-    function startResetTimer() {
-        resetTimer = setTimeout(() => {
-            location.reload();
-        }, 2000);
-    }
-    function clearResetTimer() { clearTimeout(resetTimer); }
+    function startResetTimer() { rTimer = setTimeout(() => { localStorage.clear(); location.reload(); }, 2500); }
+    function clearResetTimer() { clearTimeout(rTimer); }
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
 
-    // 鉄壁フッター：聖域ロジック
     async function loadFooter() {
         try {
             const res = await fetch('footer.json');
@@ -296,12 +312,15 @@
                 if (d.privacyLink) document.getElementById('privacy-link').href = d.privacyLink;
                 if (d.copyright) document.getElementById('copyright').innerText = d.copyright;
                 if (d.kofiText) document.getElementById('kofi-link').innerText = d.kofiText;
-                if (d.modalTitle) document.getElementById('modal-title').innerText = d.modalTitle;
-                if (d.modalBody) document.getElementById('modal-body').innerHTML = d.modalBody;
             }
-        } catch (e) {
-            console.log("Using hardcoded footer defaults.");
-        }
+        } catch (e) {}
+    }
+
+    // ロック確認
+    if(localStorage.getItem('rg_lock')) {
+        document.getElementById('void-screen').style.display = 'flex';
+        document.getElementById('final-time').innerText = localStorage.getItem('rg_time');
+        document.getElementById('main-ui').style.display = 'none';
     }
 
     loadFooter();
