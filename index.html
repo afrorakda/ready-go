@@ -4,168 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Ready Go</title>
-    
-    <link rel="icon" href="image_45.png">
-    <link rel="apple-touch-icon" href="image_45.png">
-
     <style>
-        :root {
-            --main: #333;
-            --bg: #fff;
-            --accent: #eee;
-            --input-bg: #fafafa;
-            --radius: 15px;
-            --danger: #ff4d4d;
-        }
-
-        /* 憲法遵守: 15px角丸 / iOS Safari対策 / 選択禁止 */
+        :root { --main: #333; --bg: #fff; --accent: #eee; --input-bg: #fafafa; --radius: 15px; --danger: #ff4d4d; --safe: #e8f5e9; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--main);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: opacity 0.5s;
-        }
-
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--main); display: flex; justify-content: center; min-height: 100vh; padding: 20px; overflow-x: hidden; }
+        .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; }
         header { display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
         .hub-link { text-decoration: none; font-size: 0.8rem; font-weight: 800; color: var(--main); background: var(--accent); padding: 8px 14px; border-radius: var(--radius); }
-        
-        .subtitle { font-size: 0.85rem; color: #666; font-weight: 700; text-align: left; line-height: 1.4; }
+        .subtitle { font-size: 0.85rem; color: #666; font-weight: 700; }
 
-        /* Stage Area */
-        #stage {
-            min-height: 320px;
-            background: var(--input-bg);
-            border-radius: var(--radius);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-            border: 2px solid var(--accent);
-            position: relative;
-        }
-
-        .item-card {
-            width: 100%;
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            transition: transform 0.2s, opacity 0.3s;
-        }
-
-        .item-visual {
-            width: 120px; height: 120px;
-            background: var(--input-bg);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3.5rem;
-            overflow: hidden;
-        }
+        #stage { min-height: 350px; background: var(--input-bg); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; padding: 20px; border: 2px solid var(--accent); position: relative; transition: background 1s; }
+        .item-card { width: 100%; background: #fff; border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .item-visual { width: 160px; height: 160px; background: var(--input-bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 4rem; overflow: hidden; }
         .item-visual img { width: 100%; height: 100%; object-fit: cover; }
+        .item-label { font-size: 1.2rem; font-weight: 900; }
+
+        .go-btn { width: 100%; padding: 20px; background: var(--main); color: #fff; border: none; border-radius: var(--radius); font-size: 1.2rem; font-weight: 900; cursor: pointer; -webkit-text-fill-color: #fff; }
         
-        .item-label { font-size: 1.1rem; font-weight: 900; color: var(--main); }
+        /* 完了後のホワイトアウト */
+        #final-screen { display: none; flex-direction: column; align-items: center; gap: 15px; animation: fadeIn 1s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 破壊アニメーション */
-        .exploding { animation: shake 0.1s infinite; border: 3px solid var(--danger); }
-        @keyframes shake {
-            0% { transform: translate(2px, 2px); }
-            50% { transform: translate(-2px, -2px); }
-            100% { transform: translate(2px, -2px); }
-        }
+        /* 緊急ボタン */
+        #emergency-btn { position: fixed; bottom: 100px; right: 20px; width: 45px; height: 45px; background: var(--accent); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 100; border: none; }
+        #emergency-overlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 
-        #final-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            gap: 20px;
-            min-height: 300px;
-        }
-        .final-check { font-size: 4rem; color: var(--main); }
-        .timestamp { font-size: 0.8rem; color: #999; font-weight: 800; }
-
-        /* Setup Area */
-        .setup-section {
-            background: var(--input-bg);
-            border-radius: var(--radius);
-            padding: 18px;
-            border: 2px solid var(--accent);
-        }
-        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; }
-        
-        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
-        .preset-icon {
-            font-size: 1.4rem; background: #fff; border: 2px solid var(--accent);
-            border-radius: 10px; padding: 8px 0; text-align: center;
-            cursor: pointer; opacity: 0.3; transition: 0.2s;
-        }
+        .setup-section { background: var(--input-bg); border-radius: var(--radius); padding: 18px; border: 2px solid var(--accent); }
+        .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
+        .preset-icon { font-size: 1.4rem; background: #fff; border: 2px solid var(--accent); border-radius: 10px; padding: 8px 0; text-align: center; cursor: pointer; opacity: 0.3; }
         .preset-icon.active { opacity: 1; border-color: var(--main); }
-        .camera-trigger { border: 2px dashed #bbb; opacity: 1; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; height: 45px; background: #fff; border-radius: 10px; }
-
-        .go-btn {
-            width: 100%; padding: 20px; background: var(--main);
-            color: #fff; border: none; border-radius: var(--radius);
-            font-size: 1.2rem; font-weight: 900; cursor: pointer;
-            -webkit-text-fill-color: #fff;
-        }
-
-        footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
-        footer a { color: inherit; text-decoration: underline; }
-
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); position: relative; }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; }
+        
+        footer { text-align: center; font-size: 0.75rem; color: #999; font-weight: 700; margin-top: 15px; }
     </style>
 </head>
 <body>
+
+<div id="emergency-overlay">
+    <div id="emergency-content" style="width:100%; max-width:300px; border-radius:15px; overflow:hidden; margin-bottom:20px;"></div>
+    <h2 style="margin-bottom:10px;">Breathe...</h2>
+    <p style="font-weight:700; color:#666;">Everything is fine. Returning in <span id="timer">10</span>s</p>
+</div>
+
+<button id="emergency-btn" onclick="triggerEmergency()">🆘</button>
 
 <div class="container" id="main-ui">
     <header>
         <h1>Ready Go</h1>
         <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
     </header>
-    <p class="subtitle">Complete the ritual. Destroy the memory. Release your mind.</p>
+    <p class="subtitle">Complete. Destroy. Release.</p>
 
     <div id="stage">
-        <div id="instruction" style="font-weight: 800; color: #bbb;">Set items and tap GO</div>
+        <div id="instruction" style="font-weight: 800; color: #bbb;">Select items & START</div>
         <div id="final-screen">
-            <div class="final-check">Done.</div>
-            <div id="done-time" class="timestamp"></div>
-            <button class="hub-link" style="margin-top:20px; border:none; cursor:pointer;" onclick="location.reload()">New Ritual</button>
+            <h2 style="font-size: 2rem;">Your mind is free.</h2>
+            <p id="done-time" style="font-weight: 800; color: #999;"></p>
+            <p style="font-size: 0.8rem; color: #ccc;">All evidence has been destroyed.</p>
+            <button class="hub-link" style="margin-top:20px; border:none;" onclick="location.reload()">Start Over</button>
         </div>
     </div>
 
     <div class="setup-section" id="setup-panel">
-        <p class="setup-title">1. Ritual Items</p>
         <div class="preset-grid" id="presetGrid">
-            <label class="camera-trigger" for="photo-input">📷</label>
+            <label style="cursor:pointer; background:#fff; border:2px dashed #bbb; border-radius:10px; display:flex; align-items:center; justify-content:center;" for="photo-input">📷</label>
             <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
         </div>
         <button class="go-btn" onclick="startRitual()">START RITUAL</button>
+        <p style="font-size:0.65rem; color:#bbb; margin-top:10px; text-align:center;">First photo is used for Emergency Relief</p>
     </div>
 
     <footer>
@@ -175,44 +80,20 @@
     </footer>
 </div>
 
-<div id="modal" onclick="hideModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-x" onclick="hideModal()">×</span>
-        <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
-        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">Share > Add to Home Screen</p>
-    </div>
-</div>
-
 <script>
-    const presets = [
-        { icon: "🔒", label: "LOCK" },
-        { icon: "🔥", label: "GAS" },
-        { icon: "💧", label: "WATER" },
-        { icon: "🔑", label: "KEY" },
-        { icon: "🔌", label: "PLUG" },
-        { icon: "🪟", label: "WINDOW" },
-        { icon: "🔋", label: "POWER" },
-        { icon: "📱", label: "PHONE" },
-        { icon: "💳", label: "WALLET" },
-        { icon: "🌂", label: "UMBRELLA" }
-    ];
-
+    const presets = [{i:"🔒",l:"LOCK"},{i:"🔥",l:"GAS"},{i:"💧",l:"WATER"},{i:"🔑",l:"KEY"},{i:"🔌",l:"PLUG"},{i:"🪟",l:"WINDOW"},{i:"🔋",l:"POWER"},{i:"📱",l:"PHONE"},{i:"💳",l:"WALLET"},{i:"🌂",l:"UMBRELLA"}];
     let selected = JSON.parse(localStorage.getItem('rg_ocd_sel')) || ["🔒"];
-    let photoItems = JSON.parse(localStorage.getItem('rg_ocd_photos')) || []; 
+    let photoItems = []; 
     let activeQueue = [];
-
-    const stage = document.getElementById('stage');
-    const presetGrid = document.getElementById('presetGrid');
-    const photoInput = document.getElementById('photo-input');
 
     function init() {
         presets.forEach(p => {
             const div = document.createElement('div');
-            div.className = `preset-icon ${selected.includes(p.icon) ? 'active' : ''}`;
-            div.innerText = p.icon;
+            div.className = `preset-icon ${selected.includes(p.i) ? 'active' : ''}`;
+            div.innerText = p.i;
             div.onclick = () => {
-                if (selected.includes(p.icon)) selected = selected.filter(i => i !== p.icon);
-                else selected.push(p.icon);
+                if(selected.includes(p.i)) selected = selected.filter(x=>x!==p.i);
+                else selected.push(p.i);
                 div.classList.toggle('active');
                 localStorage.setItem('rg_ocd_sel', JSON.stringify(selected));
             };
@@ -221,93 +102,69 @@
         loadFooter();
     }
 
-    photoInput.onchange = e => {
+    document.getElementById('photo-input').onchange = e => {
         const file = e.target.files[0];
-        if (!file) return;
+        if(!file) return;
         const reader = new FileReader();
-        reader.onload = event => {
-            photoItems.push(event.target.result);
-            if (photoItems.length > 5) photoItems.shift();
-            localStorage.setItem('rg_ocd_photos', JSON.stringify(photoItems));
+        reader.onload = ev => { 
+            photoItems.push(ev.target.result); 
+            if(photoItems.length === 1) document.getElementById('emergency-btn').style.display = 'flex';
         };
         reader.readAsDataURL(file);
     };
 
     function startRitual() {
-        activeQueue = [
-            ...selected.map(s => ({ type: 'emoji', val: s, label: presets.find(p => p.icon === s).label })),
-            ...photoItems.map(p => ({ type: 'photo', val: p, label: 'EVIDENCE' }))
-        ];
-        if (activeQueue.length === 0) return;
-        
+        activeQueue = [...selected.map(s=>({v:s,l:presets.find(p=>p.i===s).l,t:'e'})), ...photoItems.map(p=>({v:p,l:'EVIDENCE',t:'p'}))];
+        if(!activeQueue.length) return;
         document.getElementById('setup-panel').style.display = 'none';
         document.getElementById('instruction').style.display = 'none';
-        renderNextItem();
+        renderNext();
     }
 
-    function renderNextItem() {
-        if (activeQueue.length === 0) {
-            finishRitual();
-            return;
-        }
+    function renderNext() {
+        if(!activeQueue.length) { finish(); return; }
         const item = activeQueue[0];
-        stage.innerHTML = '';
-        
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML = `
-            <div class="item-visual">${item.type === 'emoji' ? item.val : `<img src="${item.val}">`}</div>
-            <div class="item-label">${item.label}</div>
-            <button class="go-btn" style="margin-top:10px; background:#ff4d4d;" onclick="destroyItem(this.parentElement)">DESTROY & CONFIRM</button>
-        `;
-        stage.appendChild(card);
+        stage.innerHTML = `<div class="item-card"><div class="item-visual">${item.t==='e'?item.v:`<img src="${item.v}">`}</div><div class="item-label">${item.label||item.l}</div><button class="go-btn" style="background:var(--danger);" onclick="destroy(this.parentElement)">DESTROY & CONFIRM</button></div>`;
     }
 
-    function destroyItem(el) {
-        el.classList.add('exploding');
+    function destroy(el) {
+        el.style.animation = 'shake 0.1s infinite';
         setTimeout(() => {
             el.style.opacity = '0';
-            el.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                activeQueue.shift();
-                renderNextItem();
-            }, 300);
+            setTimeout(() => { activeQueue.shift(); renderNext(); }, 300);
         }, 600);
     }
 
-    function finishRitual() {
-        // 断絶プロトコル: 写真データを揮発させる
-        photoItems = [];
-        localStorage.setItem('rg_ocd_photos', JSON.stringify([]));
-        
+    function finish() {
+        photoItems = []; // 揮発
         const now = new Date();
-        const timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        
+        stage.style.background = 'var(--safe)';
+        document.getElementById('done-time').innerText = `Confirmed at ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
         stage.innerHTML = '';
-        const final = document.getElementById('final-screen');
-        final.style.display = 'flex';
-        document.getElementById('done-time').innerText = `RITUAL COMPLETED AT: ${timeStr}`;
-        stage.appendChild(final);
+        document.getElementById('final-screen').style.display = 'flex';
+        stage.appendChild(document.getElementById('final-screen'));
     }
 
-    function showModal() { document.getElementById('modal').style.display = 'flex'; }
-    function hideModal() { document.getElementById('modal').style.display = 'none'; }
+    function triggerEmergency() {
+        if(!photoItems[0] && !activeQueue.length) return; 
+        const overlay = document.getElementById('emergency-overlay');
+        const content = document.getElementById('emergency-content');
+        const count = document.getElementById('timer');
+        content.innerHTML = `<img src="${photoItems[0] || ''}" style="width:100%;">`;
+        overlay.style.display = 'flex';
+        let left = 10;
+        const itv = setInterval(() => {
+            left--;
+            count.innerText = left;
+            if(left <= 0) { clearInterval(itv); overlay.style.display = 'none'; }
+        }, 1000);
+    }
 
-    async function loadFooter() {
-        try {
-            const res = await fetch('footer.json');
-            if (res.ok) {
-                const d = await res.json();
-                if (d.footerText) document.getElementById('footer-text').innerText = d.footerText;
-                if (d.privacyLink) document.getElementById('privacy-link').href = d.privacyLink;
-                if (d.copyright) document.getElementById('copyright').innerText = d.copyright;
-                if (d.kofiText) document.getElementById('kofi-link').innerText = d.kofiText;
-            }
-        } catch (e) {}
+    async function loadFooter() { /* Fridge Combo 憲法ロジック */
+        try { const res = await fetch('footer.json'); if(res.ok) { const d = await res.json(); document.getElementById('footer-text').innerText = d.footerText || ''; } } catch(e){}
     }
 
     init();
 </script>
-
 </body>
 </html>
