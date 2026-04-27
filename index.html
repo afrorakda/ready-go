@@ -42,71 +42,71 @@
             transition: opacity 0.5s;
         }
 
-        /* ヘッダー: Hub連携 */
         header { display: flex; justify-content: space-between; align-items: center; }
         h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.2px; }
         .hub-link { text-decoration: none; font-size: 0.8rem; font-weight: 800; color: var(--main); background: var(--accent); padding: 8px 14px; border-radius: var(--radius); }
         
-        .subtitle { font-size: 0.9rem; color: #666; font-weight: 700; text-align: left; }
+        .subtitle { font-size: 0.85rem; color: #666; font-weight: 700; text-align: left; line-height: 1.4; }
 
         /* Stage Area */
         #stage {
-            min-height: 280px;
-            position: relative;
+            min-height: 320px;
             background: var(--input-bg);
             border-radius: var(--radius);
             display: flex;
-            flex-wrap: wrap;
-            align-content: center;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 20px;
             padding: 20px;
             border: 2px solid var(--accent);
-            overflow: hidden;
+            position: relative;
         }
 
-        .item {
-            width: 85px; height: 85px;
+        .item-card {
+            width: 100%;
             background: #fff;
+            border-radius: var(--radius);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s, opacity 0.3s;
+        }
+
+        .item-visual {
+            width: 120px; height: 120px;
+            background: var(--input-bg);
             border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            position: relative;
-            transition: transform 0.1s, opacity 0.3s;
+            font-size: 3.5rem;
             overflow: hidden;
         }
-        .item img { width: 100%; height: 100%; object-fit: cover; }
+        .item-visual img { width: 100%; height: 100%; object-fit: cover; }
         
+        .item-label { font-size: 1.1rem; font-weight: 900; color: var(--main); }
+
         /* 破壊アニメーション */
-        .item.exploding {
-            animation: shake 0.12s infinite;
-            border: 3px solid var(--danger);
-            z-index: 100;
-        }
+        .exploding { animation: shake 0.1s infinite; border: 3px solid var(--danger); }
         @keyframes shake {
-            0% { transform: translate(2px, 2px) rotate(0deg) scale(1.1); }
-            25% { transform: translate(-2px, -2px) rotate(2deg); }
-            50% { transform: translate(2px, -2px) rotate(-2deg); }
-            75% { transform: translate(-2px, 2px) rotate(1deg); }
-            100% { transform: translate(2px, 2px) rotate(0deg); }
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(2px, -2px); }
         }
 
-        .particle {
-            position: absolute; width: 10px; height: 10px;
-            background: var(--danger); border-radius: 50%;
-            pointer-events: none; z-index: 200;
+        #final-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 20px;
+            min-height: 300px;
         }
-
-        #final-msg {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3.5rem; font-weight: 900;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.5s; z-index: 2000;
-            color: var(--main); text-align: center;
-        }
+        .final-check { font-size: 4rem; color: var(--main); }
+        .timestamp { font-size: 0.8rem; color: #999; font-weight: 800; }
 
         /* Setup Area */
         .setup-section {
@@ -115,24 +115,16 @@
             padding: 18px;
             border: 2px solid var(--accent);
         }
-        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; display: flex; justify-content: space-between; }
+        .setup-title { font-size: 0.75rem; font-weight: 900; color: #999; margin-bottom: 12px; text-transform: uppercase; }
         
         .preset-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 18px; }
         .preset-icon {
             font-size: 1.4rem; background: #fff; border: 2px solid var(--accent);
             border-radius: 10px; padding: 8px 0; text-align: center;
             cursor: pointer; opacity: 0.3; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center;
         }
         .preset-icon.active { opacity: 1; border-color: var(--main); }
-        .preset-icon.camera-trigger { border: 2px dashed #bbb; opacity: 1; color: #888; }
-        
-        #photo-input { 
-            display: none;
-            -webkit-appearance: none;
-            opacity: 1 !important;
-            -webkit-text-fill-color: var(--main);
-        }
+        .camera-trigger { border: 2px dashed #bbb; opacity: 1; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; height: 45px; background: #fff; border-radius: 10px; }
 
         .go-btn {
             width: 100%; padding: 20px; background: var(--main);
@@ -140,51 +132,46 @@
             font-size: 1.2rem; font-weight: 900; cursor: pointer;
             -webkit-text-fill-color: #fff;
         }
-        .go-btn:active { transform: scale(0.97); }
 
-        .footer-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
-        .kofi-btn { background: var(--main); color: #fff; text-decoration: none; padding: 16px; border-radius: var(--radius); text-align: center; font-weight: 900; font-size: 0.9rem; -webkit-text-fill-color: #fff; }
-        .home-btn { background: var(--accent); color: var(--main); border: none; padding: 12px; border-radius: var(--radius); font-weight: 800; font-size: 0.8rem; cursor: pointer; }
-
-        /* 鉄壁フッター構造 */
         footer { text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; margin-top: 15px; }
         footer a { color: inherit; text-decoration: underline; }
 
         #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); text-align: left; position: relative; }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
+        .modal-content { background: #fff; width: 90%; max-width: 340px; padding: 35px; border-radius: var(--radius); position: relative; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div id="final-msg">DONE. GO!</div>
 
 <div class="container" id="main-ui">
     <header>
         <h1>Ready Go</h1>
         <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
     </header>
-    <p class="subtitle">Destroy the evidence. Quiet the mind.</p>
+    <p class="subtitle">Complete the ritual. Destroy the memory. Release your mind.</p>
 
-    <div id="stage"></div>
-
-    <div class="setup-section">
-        <p class="setup-title"><span>1. SETUP ITEMS</span> <span id="item-count">0</span></p>
-        <div class="preset-grid" id="presetGrid">
-            <label class="preset-icon camera-trigger" for="photo-input">📷</label>
-            <input type="file" id="photo-input" accept="image/*" capture="environment">
+    <div id="stage">
+        <div id="instruction" style="font-weight: 800; color: #bbb;">Set items and tap GO</div>
+        <div id="final-screen">
+            <div class="final-check">Done.</div>
+            <div id="done-time" class="timestamp"></div>
+            <button class="hub-link" style="margin-top:20px; border:none; cursor:pointer;" onclick="location.reload()">New Ritual</button>
         </div>
-        <button class="go-btn" onclick="startReady()">READY TO GO</button>
     </div>
 
-    <div class="footer-btns">
-        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️ buy me a coffee</a>
-        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
+    <div class="setup-section" id="setup-panel">
+        <p class="setup-title">1. Ritual Items</p>
+        <div class="preset-grid" id="presetGrid">
+            <label class="camera-trigger" for="photo-input">📷</label>
+            <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
+        </div>
+        <button class="go-btn" onclick="startRitual()">START RITUAL</button>
     </div>
 
     <footer>
         <span id="footer-text">No login / No tracking / No ads / Browser only</span><br>
-        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span>
+        <a id="privacy-link" href="https://afrorakda.com/privacy/">Privacy Policy</a> / <span id="copyright">afrorakda © 2026</span><br>
+        <a id="kofi-link" href="https://ko-fi.com/afrorakda" target="_blank" style="text-decoration:none;">☕️ buy me a coffee</a>
     </footer>
 </div>
 
@@ -192,52 +179,46 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-x" onclick="hideModal()">×</span>
         <h3 id="modal-title" style="margin-bottom: 15px; font-weight: 900;">📱 Install</h3>
-        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
-            🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen<br><br>
-            🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen
-        </p>
+        <p id="modal-body" style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">Share > Add to Home Screen</p>
     </div>
 </div>
 
 <script>
-    const presets = ["🔒", "🔥", "💧", "🔑", "📱", "🪪", "🎧", "⌚️", "💳", "🌂"];
-    let selected = JSON.parse(localStorage.getItem('rg_v3_sel')) || ["🔒", "🔥", "🔑"];
-    let photoItems = JSON.parse(localStorage.getItem('rg_v3_photos')) || []; 
+    const presets = [
+        { icon: "🔒", label: "LOCK" },
+        { icon: "🔥", label: "GAS" },
+        { icon: "💧", label: "WATER" },
+        { icon: "🔑", label: "KEY" },
+        { icon: "🔌", label: "PLUG" },
+        { icon: "🪟", label: "WINDOW" },
+        { icon: "🔋", label: "POWER" },
+        { icon: "📱", label: "PHONE" },
+        { icon: "💳", label: "WALLET" },
+        { icon: "🌂", label: "UMBRELLA" }
+    ];
+
+    let selected = JSON.parse(localStorage.getItem('rg_ocd_sel')) || ["🔒"];
+    let photoItems = JSON.parse(localStorage.getItem('rg_ocd_photos')) || []; 
+    let activeQueue = [];
 
     const stage = document.getElementById('stage');
     const presetGrid = document.getElementById('presetGrid');
     const photoInput = document.getElementById('photo-input');
-    const mainUI = document.getElementById('main-ui');
-    const finalMsg = document.getElementById('final-msg');
 
     function init() {
-        const triggers = presetGrid.querySelectorAll('.preset-icon:not(.camera-trigger)');
-        triggers.forEach(t => t.remove());
-
-        presets.forEach(icon => {
+        presets.forEach(p => {
             const div = document.createElement('div');
-            div.className = `preset-icon ${selected.includes(icon) ? 'active' : ''}`;
-            div.innerText = icon;
+            div.className = `preset-icon ${selected.includes(p.icon) ? 'active' : ''}`;
+            div.innerText = p.icon;
             div.onclick = () => {
-                if (selected.includes(icon)) selected = selected.filter(i => i !== icon);
-                else selected.push(icon);
+                if (selected.includes(p.icon)) selected = selected.filter(i => i !== p.icon);
+                else selected.push(p.icon);
                 div.classList.toggle('active');
-                save();
+                localStorage.setItem('rg_ocd_sel', JSON.stringify(selected));
             };
             presetGrid.appendChild(div);
         });
-        updateCount();
         loadFooter();
-    }
-
-    function save() {
-        localStorage.setItem('rg_v3_sel', JSON.stringify(selected));
-        localStorage.setItem('rg_v3_photos', JSON.stringify(photoItems));
-        updateCount();
-    }
-
-    function updateCount() {
-        document.getElementById('item-count').innerText = selected.length + photoItems.length;
     }
 
     photoInput.onchange = e => {
@@ -246,116 +227,83 @@
         const reader = new FileReader();
         reader.onload = event => {
             photoItems.push(event.target.result);
-            if (photoItems.length > 8) photoItems.shift(); 
-            save();
-            if (window.navigator.vibrate) window.navigator.vibrate(20);
+            if (photoItems.length > 5) photoItems.shift();
+            localStorage.setItem('rg_ocd_photos', JSON.stringify(photoItems));
         };
         reader.readAsDataURL(file);
     };
 
-    function startReady() {
-        const total = selected.length + photoItems.length;
-        if (total === 0) return;
-        if (window.navigator.vibrate) window.navigator.vibrate(50);
-        
-        stage.innerHTML = '';
-        const allItems = [
-            ...selected.map(s => ({ type: 'emoji', val: s })),
-            ...photoItems.map(p => ({ type: 'photo', val: p }))
+    function startRitual() {
+        activeQueue = [
+            ...selected.map(s => ({ type: 'emoji', val: s, label: presets.find(p => p.icon === s).label })),
+            ...photoItems.map(p => ({ type: 'photo', val: p, label: 'EVIDENCE' }))
         ];
-
-        allItems.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'item';
-            if (item.type === 'emoji') div.innerText = item.val;
-            else div.innerHTML = `<img src="${item.val}">`;
-
-            div.onclick = () => explode(div);
-            stage.appendChild(div);
-        });
+        if (activeQueue.length === 0) return;
         
-        stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('setup-panel').style.display = 'none';
+        document.getElementById('instruction').style.display = 'none';
+        renderNextItem();
     }
 
-    function explode(el) {
-        if (el.classList.contains('exploding')) return;
-        el.classList.add('exploding');
-        if (window.navigator.vibrate) window.navigator.vibrate([40, 30, 40]);
-
-        const rect = el.getBoundingClientRect();
-        for (let i = 0; i < 20; i++) {
-            createParticle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    function renderNextItem() {
+        if (activeQueue.length === 0) {
+            finishRitual();
+            return;
         }
+        const item = activeQueue[0];
+        stage.innerHTML = '';
+        
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+            <div class="item-visual">${item.type === 'emoji' ? item.val : `<img src="${item.val}">`}</div>
+            <div class="item-label">${item.label}</div>
+            <button class="go-btn" style="margin-top:10px; background:#ff4d4d;" onclick="destroyItem(this.parentElement)">DESTROY & CONFIRM</button>
+        `;
+        stage.appendChild(card);
+    }
 
+    function destroyItem(el) {
+        el.classList.add('exploding');
         setTimeout(() => {
             el.style.opacity = '0';
-            el.style.transform = 'scale(1.5) rotate(15deg)';
+            el.style.transform = 'scale(0.8)';
             setTimeout(() => {
-                el.remove();
-                checkClear();
-            }, 250);
-        }, 500);
+                activeQueue.shift();
+                renderNextItem();
+            }, 300);
+        }, 600);
     }
 
-    function createParticle(x, y) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        document.body.appendChild(p);
-        const size = Math.random() * 12 + 6;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        p.style.left = `${x}px`;
-        p.style.top = `${y}px`;
-
-        const destX = (Math.random() - 0.5) * 400;
-        const destY = (Math.random() - 0.5) * 400;
-
-        p.animate([
-            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-            { transform: `translate(${destX}px, ${destY}px) scale(0) rotate(180deg)`, opacity: 0 }
-        ], {
-            duration: 700,
-            easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
-            fill: 'forwards'
-        });
-
-        setTimeout(() => p.remove(), 700);
-    }
-
-    function checkClear() {
-        if (stage.querySelectorAll('.item').length === 0) {
-            mainUI.style.opacity = '0';
-            setTimeout(() => {
-                mainUI.style.display = 'none';
-                finalMsg.style.opacity = '1';
-                if (window.navigator.vibrate) window.navigator.vibrate([150, 100, 200]);
-                
-                setTimeout(() => {
-                    location.reload();
-                }, 4000);
-            }, 600);
-        }
+    function finishRitual() {
+        // 断絶プロトコル: 写真データを揮発させる
+        photoItems = [];
+        localStorage.setItem('rg_ocd_photos', JSON.stringify([]));
+        
+        const now = new Date();
+        const timeStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        stage.innerHTML = '';
+        const final = document.getElementById('final-screen');
+        final.style.display = 'flex';
+        document.getElementById('done-time').innerText = `RITUAL COMPLETED AT: ${timeStr}`;
+        stage.appendChild(final);
     }
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
 
-    /* 聖域ロジック: loadFooter */
     async function loadFooter() {
         try {
-            const response = await fetch('footer.json');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.footerText) document.getElementById('footer-text').innerText = data.footerText;
-                if (data.privacyLink) document.getElementById('privacy-link').href = data.privacyLink;
-                if (data.copyright) document.getElementById('copyright').innerText = data.copyright;
-                if (data.kofiText) document.getElementById('kofi-link').innerText = data.kofiText;
-                if (data.modalTitle) document.getElementById('modal-title').innerText = data.modalTitle;
-                if (data.modalBody) document.getElementById('modal-body').innerHTML = data.modalBody;
+            const res = await fetch('footer.json');
+            if (res.ok) {
+                const d = await res.json();
+                if (d.footerText) document.getElementById('footer-text').innerText = d.footerText;
+                if (d.privacyLink) document.getElementById('privacy-link').href = d.privacyLink;
+                if (d.copyright) document.getElementById('copyright').innerText = d.copyright;
+                if (d.kofiText) document.getElementById('kofi-link').innerText = d.kofiText;
             }
-        } catch (e) {
-            console.log("Footer JSON load skipped. Using hardcoded defaults.");
-        }
+        } catch (e) {}
     }
 
     init();
